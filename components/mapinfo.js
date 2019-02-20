@@ -21,7 +21,7 @@ export default class App extends Component {
   }
   async componentDidMount() {
     await Geolocation.init({
-      android: "b9026d1239bfc1925a60c05413781119"
+      android: "21f2e5a2ce0b635a4cabf4d437e70031"
     })
     Geolocation.setOptions({
       interval: 1000,
