@@ -41,20 +41,6 @@ export default class Login extends Component {
     }
     return true;
   };
-
-  getRequest = (url, query) => {
-    if (query) {
-    } else {
-      query = {};
-    }
-    return fetch(url, {
-      method: "GET",
-      body: JSON.stringify(query),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-  };
   start_interval = () =>{
     let intervalID = setInterval( () => {
       this.count --;

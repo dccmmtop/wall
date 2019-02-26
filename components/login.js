@@ -9,13 +9,15 @@ import {
   Image
 } from "react-native";
 import { Actions } from "react-native-router-flux";
-// import Session from "../lib/Session";
+import Api from "../lib/Api";
+import Request from "../lib/Request";
+import Session from "../lib/Session";
 import Toast from "react-native-whc-toast";
 
 export default class Login extends Component {
   constructor(props) {
     super(props);
-    this.state = { nickname: "", password: "" };
+    this.state = { nickname: "dccmmtop@foxmail.com", password: "1234567" };
   }
 
   getuserName = () => {
@@ -39,13 +41,27 @@ export default class Login extends Component {
     console.log("onClickLogin");
     //是否能通过验证
     if (this.validateLogin()) {
-      Request.post()
+      query = {
+        email_name: this.state.nickname,
+        password: this.state.password
+      };
+      Request.post({url: Api.login_url, data: query}).then(res => {
+        console.log(res);
+        if(res.status != 0){
+          alert(res.message);
+        }else{
+          Session.login(res.token,res.nickname,res.email)
+          this.refs.toast.show("登录成功", Toast.Duration.long, Toast.Position.bottom);
+          setTimeout( Actions.mapInfo,1500)
+        }
+      }).catch(error => {
+      });
     }
   };
 
   hideInputBox = () => {
-    this.refs.inputLogin.blur();
-    this.refs.inputPassword.blur();
+    // this.refs.inputLogin.blur();
+    // this.refs.inputPassword.blur();
   };
   // componentDidMount = () => {
   //   if (this.props.jumpData) {
@@ -84,10 +100,10 @@ export default class Login extends Component {
               underlineColorAndroid="transparent"
               onFocus={() => this.refs.toast.close(true)}
               onChangeText={text => {
-                this.setState({ userName: text });
+                this.setState({ nickname: text });
               }}
               selectTextOnFocus={true}
-              maxLength={16}
+              value={this.state.nickname}
             />
           </View>
           <View style={[styles.inputGroup, { borderTopWidth: 0 }]}>
@@ -108,12 +124,13 @@ export default class Login extends Component {
               secureTextEntry
               selectTextOnFocus={true}
               maxLength={16}
+              value={this.state.password}
             />
           </View>
           <TouchableOpacity
             style={styles.loginBtn}
             onPress={() => {
-              // this._onClickLogin();
+              this._onClickLogin();
             }}
           >
             <Text style={styles.loginText}>登 录</Text>
@@ -128,7 +145,7 @@ export default class Login extends Component {
       <Text style={styles.registText}>注册新账号>></Text>
     </TouchableOpacity>
   </View>
-</TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
     );
   }
 }
