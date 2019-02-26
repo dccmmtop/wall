@@ -15,7 +15,7 @@ import Toast from "react-native-whc-toast";
 export default class Login extends Component {
   constructor(props) {
     super(props);
-    this.state = { userName: "", password: "" };
+    this.state = { nickname: "", password: "" };
   }
 
   getuserName = () => {
@@ -24,26 +24,13 @@ export default class Login extends Component {
 
   validateLogin = () => {
     console.log("enter validate");
-    //验证用户名或者密码是否为空
-    if (
-      this.state.userName.trim().length == 0 ||
-      this.state.password.trim().length == 0
-    ) {
-      alert("账号或密码不能为空!");
+    if(this.state.nickname.length == 0){
+      alert("邮箱或昵称不能为空");
       return false;
     }
-    //是否包含有特殊字符
-    else {
-      let pattern = new RegExp(
-        "[`~!@#$^&*()=|{}':;',\\[\\].<>《》/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]"
-      );
-      if (
-        pattern.test(this.state.userName) ||
-        pattern.test(this.state.password)
-      ) {
-        alert("账号或密码不能包含特殊字符!");
-        return false;
-      }
+    if(this.state.password.length == 0){
+      alert("密码不能为空");
+      return false;
     }
     return true;
   };
@@ -52,17 +39,7 @@ export default class Login extends Component {
     console.log("onClickLogin");
     //是否能通过验证
     if (this.validateLogin()) {
-      new Session(this.state.userName, this.state.password)
-        .setSession()
-        .then(() => {
-          this.hideInputBox();
-          //弹出堆栈，直到 到达mapInfo
-          Actions.popTo("mapInfo");
-          Actions.refresh({ jumpData: "登录成功" });
-        })
-        .catch(error => {
-          alert(error);
-        });
+      Request.post()
     }
   };
 
@@ -143,15 +120,15 @@ export default class Login extends Component {
           </TouchableOpacity>
           <TouchableOpacity
             //style={styles.loginBtn}
-            onPress={() => {
-              // this._onClickLogin();
-              Actions.regist();
-            }}
-          >
-            <Text style={styles.registText}>注册新账号>></Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableWithoutFeedback>
+      onPress={() => {
+        // this._onClickLogin();
+        Actions.regist();
+      }}
+    >
+      <Text style={styles.registText}>注册新账号>></Text>
+    </TouchableOpacity>
+  </View>
+</TouchableWithoutFeedback>
     );
   }
 }
