@@ -9,18 +9,71 @@ import {
   Image
 } from "react-native";
 import { Actions } from "react-native-router-flux";
-// import Session from "../lib/Session";
+import Api from "../lib/Api";
+import Request from "../lib/Request";
 import Toast from "react-native-whc-toast";
 
 export default class Login extends Component {
   constructor(props) {
     super(props);
-    this.state = { userName: "", password: "" };
+    this.state = { nickname: "", password: "",validate_code: "", password_confirmation: "", email: "", validate_code_btn_text: "获取验证码"};
+    this.count = 120;
   }
 
   getuserName = () => {
-    return this.state.userName;
+    return this.state.nickname;
   };
+
+  validate_on_get_validate_code = () => {
+    if(this.state.nickname.trim().length == 0){
+      alert("昵称不能为空");
+      return false;
+    }
+    if(this.state.email.trim().length == 0){
+      alert("邮箱不能为空");
+      return false;
+    }
+    return true;
+  };
+
+  getRequest = (url, query) => {
+    if (query) {
+    } else {
+      query = {};
+    }
+    return fetch(url, {
+      method: "GET",
+      body: JSON.stringify(query),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+  };
+  start_interval = () =>{
+    setInterval( () => {
+      this.count --;
+      if(this.count <= 0){
+        this.setState({validate_code_btn_text: "获取验证码"});
+      }
+      else{
+        this.setState({validate_code_btn_text: "重新获取验证码" + "(" + this.count + ")"});
+      }
+    },1000);
+  }
+  get_validate_code = () => {
+    if(this.validate_on_get_validate_code()){
+      // TODO 请求API
+      query = {email: this.state.email}
+      Request.get({url: Api.validate_code_url, data: query}).then( res => {
+        console.log(res);
+        this.count = 120;
+        this.start_interval();
+        this.refs.toast.show("验证码已发送", Toast.Duration.short, Toast.Position.bottom);
+      }).catch(error => {
+        console.log(error);
+      });
+    }
+  }
 
   validateLogin = () => {
     console.log("enter validate");
@@ -67,8 +120,8 @@ export default class Login extends Component {
   };
 
   hideInputBox = () => {
-    this.refs.inputLogin.blur();
-    this.refs.inputPassword.blur();
+    // this.refs.inputLogin.blur();
+    // this.refs.inputPassword.blur();
   };
   // componentDidMount = () => {
   //   if (this.props.jumpData) {
@@ -100,14 +153,14 @@ export default class Login extends Component {
               source={require("../icons/user.png")}
             />
             <TextInput
-              ref="inputLogin"
+              ref="nickname"
               style={[styles.inputContent]}
               placeholder="昵称"
               placeholderTextColor="gray"
               underlineColorAndroid="transparent"
               onFocus={() => this.refs.toast.close(true)}
               onChangeText={text => {
-                this.setState({ userName: text });
+                this.setState({ nickname: text });
               }}
               selectTextOnFocus={true}
               maxLength={16}
@@ -119,17 +172,16 @@ export default class Login extends Component {
               source={require("../icons/email.png")}
             />
             <TextInput
-              ref="inputLogin"
+              ref="email"
               style={[styles.inputContent]}
               placeholder="邮箱"
               placeholderTextColor="gray"
               underlineColorAndroid="transparent"
               onFocus={() => this.refs.toast.close(true)}
               onChangeText={text => {
-                this.setState({ userName: text });
+                this.setState({ email: text });
               }}
               selectTextOnFocus={true}
-              maxLength={16}
             />
           </View>
           <View style={styles.inputGroup}>
@@ -138,25 +190,26 @@ export default class Login extends Component {
               source={require("../icons/verifi.png")}
             />
             <TextInput
-              ref="inputLogin"
+              ref="validate_code"
               style={[styles.inputContent]}
               placeholder="验证码"
               placeholderTextColor="gray"
               underlineColorAndroid="transparent"
               onFocus={() => this.refs.toast.close(true)}
               onChangeText={text => {
-                this.setState({ userName: text });
+                this.setState({ validate_code: text });
               }}
               selectTextOnFocus={true}
               maxLength={16}
             />
-          <TouchableOpacity
-            style={styles.verifiBtn}
-            onPress={() => {
-              // this._onClickLogin();
-            }} >
-            <Text style={styles.verifiText}>点击获取验证码</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.verifiBtn}
+              enabled= {this.count < 120 ? false : true}
+              onPress={() => {
+                this.get_validate_code();
+              }} >
+              <Text style={styles.verifiText}>{this.state.validate_code_btn_text}</Text>
+            </TouchableOpacity>
           </View>
           <View style={[styles.inputGroup, { borderTopWidth: 0 }]}>
             <Image
@@ -164,7 +217,7 @@ export default class Login extends Component {
               source={require("../icons/password.png")}
             />
             <TextInput
-              ref="inputPassword"
+              ref="password"
               style={[styles.inputContent]}
               placeholder="密码"
               placeholderTextColor="gray"
@@ -172,6 +225,26 @@ export default class Login extends Component {
               onFocus={() => this.refs.toast.close(true)}
               onChangeText={text => {
                 this.setState({ password: text });
+              }}
+              secureTextEntry
+              selectTextOnFocus={true}
+              maxLength={16}
+            />
+          </View>
+          <View style={[styles.inputGroup, { borderTopWidth: 0 }]}>
+            <Image
+              style={[styles.inputLabel]}
+              source={require("../icons/password.png")}
+            />
+            <TextInput
+              ref="password_confirmation"
+              style={[styles.inputContent]}
+              placeholder="重复密码"
+              placeholderTextColor="gray"
+              underlineColorAndroid="transparent"
+              onFocus={() => this.refs.toast.close(true)}
+              onChangeText={text => {
+                this.setState({ password_confirmation: text });
               }}
               secureTextEntry
               selectTextOnFocus={true}
