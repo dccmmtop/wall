@@ -1,13 +1,18 @@
 import React, {Component} from 'react';
 import {  Button, StyleSheet, Text, View, TouchableOpacity,Image} from "react-native"
+import { Actions } from "react-native-router-flux";
 import { MapView } from 'react-native-amap3d';
 import { Geolocation } from "react-native-amap-geolocation";
+import Request from "../lib/Request";
+import Api from "../lib/Api";
+import Toast from "react-native-whc-toast";
+import Session from "../lib/Session";
 
 export default class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      markers: [],
+      messages: [],
       location: {
         longitude: 0,
         latitude: 0
@@ -18,13 +23,16 @@ export default class App extends Component {
       longitude: 0,
       latitude: 0
     };
+
+    //中心点坐标
+    this.centerPosition = {};
   }
-  async componentDidMount() {
-    await Geolocation.init({
+   componentDidMount() {
+     Geolocation.init({
       android: "21f2e5a2ce0b635a4cabf4d437e70031"
     })
     Geolocation.setOptions({
-      interval: 1000,
+      interval: 3000,
       distanceFilter: 0,
       background: true,
       reGeocode: true
@@ -33,12 +41,26 @@ export default class App extends Component {
         this.updateLocationState(location)
     )
     Geolocation.start()
+
+    if (this.props.info) {
+      this.refs.toast.show( this.props.info, Toast.Duration.short, Toast.Position.bottom);
+    }
   }
 
   componentWillUnmount() {
     Geolocation.stop()
   }
 
+  // get_messages
+
+
+  onStatusChangeComplete = ({ nativeEvent }) => {
+    // this.refs.toast.close(true);
+    this.centerPosition = nativeEvent;
+    console.log( "中心位置" + this.centerPosition);
+    this.get_messages_by_km(this.centerPosition);
+    // this.getMarkers(nativeEvent);
+  };
   updateLocationState(location) {
     if (location) {
       if(this._position.latitude == 0){
@@ -48,7 +70,7 @@ export default class App extends Component {
       else{
         this._position = location
         }
-      console.log(this._position)
+      // console.log(this._position)
     }
   }
   _animatedToZGC = (position, duration) => {
@@ -57,7 +79,7 @@ export default class App extends Component {
       {
         tilt: 0,
         rotation: 0,
-        zoomLevel: 14,
+        zoomLevel: 16,
         coordinate: position
       },
       duration
@@ -71,16 +93,62 @@ export default class App extends Component {
   getLastLocation = async () =>
     this.updateLocationState(await Geolocation.getLastLocation())
 
+  get_messages_by_km = (current_position) => {
+    query = {
+      latitude: current_position.latitude,
+      longitude: current_position.longitude
+    };
+    Request.get({url: Api.get_messages_by_km,data: query}).then(res => {
+      // console.log(res);
+      this.setState({messages: res.result})
+    }).catch(error => {
+      console.log(error);
+    });
+  }
+
+  //按经纬度来设置key，防止key重复，减少刷新页面次数
+  getKey = coordinate => {
+    return coordinate.latitude.toString() + coordinate.longitude.toString();
+  };
+
   render() {
+
+    const markers = this.state.messages.map(item => (
+      <MapView.Marker
+        key={this.getKey({latitude: item.latitude, longitude: item.longitude})}
+        icon={() => (
+          <Image
+            source={require("../icons/message.png")}
+            //距离最近的放大显示
+          style={ { width: 30, height: 30 } }
+        />
+        )}
+        coordinate={{latitude: item.latitude, longitude: item.longitude}}
+        infoWindowDisabled
+        onPress={() => {
+          alert(item.content)
+        }}
+      />
+    ));
     return (
       <View style={styles.container}>
+          <Toast ref="toast" />
+
         <MapView style={StyleSheet.absoluteFill}
           ref={ref => (this.mapView = ref)}
           locationEnabled
           showsScale
           showsZoomControls={false}
-          zoomLevel={14}
-        />
+          zoomLevel={16}
+          onStatusChangeComplete={this.onStatusChangeComplete} >
+          {markers}
+      </MapView>
+        <View style={styles.centerImgWrap}>
+          <Image
+            source={require("../icons/marker.png")}
+            style={styles.centerImg}
+          />
+        </View>
         <View style={styles.navGroup}>
           <View style={{ flexGrow: 2 }}>
             <TouchableOpacity
@@ -89,6 +157,32 @@ export default class App extends Component {
               <Image
                 style={[styles.imgSm, styles.navCenter]}
                 source={require("../icons/location.png")}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ flexGrow: 3 }}>
+            <TouchableOpacity
+              onPress= {() => {
+                Session.getUser().then(user => {
+                  Actions.new_message({ position: this._position } )
+                }).catch(error => {
+                  Actions.login({info: '请先登录'});
+                });
+              } }
+            >
+              <Image
+                style={[styles.imgSm, styles.navCenter]}
+                source={require("../icons/add.png")}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={{ flexGrow: 2 }}>
+            <TouchableOpacity
+            >
+              <Image
+                style={[styles.imgSm, styles.navCenter]}
+                source={require("../icons/user.png")}
               />
             </TouchableOpacity>
           </View>
@@ -128,8 +222,8 @@ const styles = StyleSheet.create({
     right: 0
   },
   imgSm: {
-    height: 60,
-    width: 60
+    height: 40,
+    width: 40
   },
   imgMd: {
     height: 100,

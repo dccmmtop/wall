@@ -24,6 +24,13 @@ export default class Login extends Component {
     return this.state.userName;
   };
 
+
+  componentDidMount = () => {
+    if (this.props.info) {
+      this.refs.toast.show( this.props.info, Toast.Duration.short, Toast.Position.bottom);
+    }
+  };
+
   validateLogin = () => {
     console.log("enter validate");
     if(this.state.nickname.length == 0){
