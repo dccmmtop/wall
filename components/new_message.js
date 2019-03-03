@@ -13,7 +13,7 @@ import Request from "../lib/Request";
 import Session from "../lib/Session";
 import Api from "../lib/Api";
 
-export default class CheckInRecordList extends Component {
+export default class NewMessage extends Component {
   constructor(props) {
     super(props);
     this.state = {
