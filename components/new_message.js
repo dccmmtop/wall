@@ -42,7 +42,8 @@ export default class CheckInRecordList extends Component {
         limit_days: this.state.limitDays,
         limit_user_accounts: 100000000,
         content: this.state.currentText,
-        token: user.token
+        token: user.token,
+        is_comment: this.state.isComment
       };
       Request.post({url: Api.newMessagUrl, data: query}).then(res => {
 
@@ -138,7 +139,7 @@ export default class CheckInRecordList extends Component {
     </View>
   </View>
     <View style={[ styles.limitGroup,{marginTop:10}]} >
-      <Image style={{ marginLeft: 20,width:30,height: 30 }} source={require("../icons/location.png")} />
+      <Image style={{ marginLeft: 20,width:30,height: 30 }} source={require("../icons/location_info.png")} />
       <Text style={{marginLeft: 10,marginTop: 10}}>{this.props.position.poiName}</Text>
     </View>
 
