@@ -1,9 +1,12 @@
 import React, {Component} from 'react';
 import {  Button, StyleSheet, Text, View, TouchableOpacity,Image} from "react-native"
+import { Actions } from "react-native-router-flux";
 import { MapView } from 'react-native-amap3d';
 import { Geolocation } from "react-native-amap-geolocation";
 import Request from "../lib/Request";
 import Api from "../lib/Api";
+import Toast from "react-native-whc-toast";
+import Session from "../lib/Session";
 
 export default class App extends Component {
   constructor(props){
@@ -38,6 +41,10 @@ export default class App extends Component {
         this.updateLocationState(location)
     )
     Geolocation.start()
+
+    if (this.props.info) {
+      this.refs.toast.show( this.props.info, Toast.Duration.short, Toast.Position.bottom);
+    }
   }
 
   componentWillUnmount() {
@@ -50,7 +57,7 @@ export default class App extends Component {
   onStatusChangeComplete = ({ nativeEvent }) => {
     // this.refs.toast.close(true);
     this.centerPosition = nativeEvent;
-    console.log(this.centerPosition);
+    console.log( "中心位置" + this.centerPosition);
     this.get_messages_by_km(this.centerPosition);
     // this.getMarkers(nativeEvent);
   };
@@ -92,7 +99,7 @@ export default class App extends Component {
       longitude: current_position.longitude
     };
     Request.get({url: Api.get_messages_by_km,data: query}).then(res => {
-      console.log(res);
+      // console.log(res);
       this.setState({messages: res.result})
     }).catch(error => {
       console.log(error);
@@ -125,6 +132,7 @@ export default class App extends Component {
     ));
     return (
       <View style={styles.container}>
+          <Toast ref="toast" />
 
         <MapView style={StyleSheet.absoluteFill}
           ref={ref => (this.mapView = ref)}
@@ -155,6 +163,13 @@ export default class App extends Component {
 
           <View style={{ flexGrow: 3 }}>
             <TouchableOpacity
+              onPress= {() => {
+                Session.getUser().then(user => {
+                  Actions.new_message({ position: this._position } )
+                }).catch(error => {
+                  Actions.login({info: '请先登录'});
+                });
+              } }
             >
               <Image
                 style={[styles.imgSm, styles.navCenter]}

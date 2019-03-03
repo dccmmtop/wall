@@ -3,6 +3,7 @@ import MapInfo from "./components/mapinfo";
 import React, { Component } from "react";
 import Login from "./components/login";
 import Regist from "./components/regist";
+import NewMessage from "./components/new_message";
 
 
 export default class App extends Component {
@@ -17,9 +18,10 @@ export default class App extends Component {
     return (
       <Router  backAndroidHandler={this.onBackPress} >
         <Stack key="root" hideNavBar >
-          <Scene key="mapInfo" component={MapInfo}  />
-          <Scene key="login" component={Login} initial/>
+          <Scene key="mapInfo" component={MapInfo} initial />
+          <Scene key="login" component={Login} />
           <Scene key="regist" component={Regist} />
+          <Scene key="new_message" component={NewMessage} />
         </Stack>
       </Router>
     );
