@@ -126,7 +126,7 @@ export default class App extends Component {
         coordinate={{latitude: item.latitude, longitude: item.longitude}}
         infoWindowDisabled
         onPress={() => {
-          Actions.show_message({messgeID: item.id});
+          Actions.show_message({messageId: item.id});
         }}
       />
     ));
@@ -165,9 +165,11 @@ export default class App extends Component {
             <TouchableOpacity
               onPress= {() => {
                 Session.getUser().then(user => {
+                  if(user)
                   Actions.new_message({ position: this._position } )
+                  else
+                    Actions.login({info: '请先登录'});
                 }).catch(error => {
-                  Actions.login({info: '请先登录'});
                 });
               } }
             >

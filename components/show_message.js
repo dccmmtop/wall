@@ -13,46 +13,14 @@ import { Actions } from "react-native-router-flux";
 import Request from "../lib/Request";
 import Session from "../lib/Session";
 import Api from "../lib/Api";
+import Toast from "react-native-whc-toast";
+import ModalDropdown from 'react-native-modal-dropdown';
 
 export default class ShowMessage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentText: " 11. Buka\
-电子书管理。开源、免费。\
-https://github.com/oguzhaninan/Buka/releases\
-★ star：578\n\
-\n10. Calibre\
-难以置信的丑但很强大的电子书管理和转换软件。开源、免费。\
-https://calibre-ebook.com/\
-\n9. Evince\
-Evince 是一款支持多种格式的文档查看器。Evince 的目标是用一个简单的应用取代已经存在于 GNOME 桌面的多种文档查看器。开源、免费。\
-https://wiki.gnome.org/Apps/Evince\
-\n8. FBReader\
-最流行的电子阅读应用之一。免费。\
-https://fbreader.org/content/fbreader-beta-linux-desktop\
-\n7. Foxit\
-Foxit Reader 8.0——获得殊荣的 PDF 阅读器。免费。\
-https://www.foxitsoftware.com/pdf-reader/\
-\n6. Lucidor\
-Lucidor 是一个阅读和处理电子书的电脑软件。Lucidor 支持 EPUB 格式的电子书和 OPDS 格式的目录。免费。\
-http://www.lucidor.org/lucidor/\
-\n5. MasterPDF editor\
-Master PDF Editor 一款方便而智能的 Linux PDF 编辑器。免费。\
-https://code-industry.net/free-pdf-editor/\
-\n4. MuPDF\
-一款轻量级的 PDF 和 XPS 查看器。开源、免费。\
-https://mupdf.com/\
-\n3. Okular\
-Okular 由 KDE 原始开发的通用文档查看器。Okular 可以在多个平台上工作，包括但不限于 Linux，Windows，Mac OS X，BSD 等等。免费。\
-https://okular.kde.org/\
-\n2. qpdf\
-qpdfview 是一款标签页式文档查看器。开源、免费。\
-https://launchpad.net/qpdfview\
-\n1. Sigil\
-Sigil 是一款多平台 EPUB 电子书编辑器。开源、免费。\
-https://github.com/Sigil-Ebook/Sigil\
-      ",
+      currentText: "",
       commentText: "",
       limitDays: "1000",
       isComment: true,
@@ -61,7 +29,8 @@ https://github.com/Sigil-Ebook/Sigil\
       commentCounts: "50",
       nickname: '采蘑菇的小姑娘',
       published_at: "2019-03-01 10:23",
-      liked: true
+      liked: false,
+      avatar: Api.root + "/uploads/loading.jpg"
     };
   }
   setText = text => {
@@ -70,37 +39,62 @@ https://github.com/Sigil-Ebook/Sigil\
     });
   };
   dealLike = () =>{
-    if(this.state.liked)
-      this.setState({liked: false, likeCounts: this.state.likeCounts - 1})
-    else
-      this.setState({liked: true, likeCounts: this.state.likeCounts + 1})
+    Session.getUser().then( user => {
+      if(user){
+        let url = ""
+        if(this.state.liked){
+          this.setState({liked: false, likeCounts: this.state.likeCounts - 1})
+          url = Api.cancel_like
+        }
+        else{
+          this.setState({liked: true, likeCounts: this.state.likeCounts + 1})
+          url = Api.like
+        }
+        query = {
+          token: user.token,
+          message_id: this.props.messageId
+        };
+        Request.get({url: url, data: query}).then(res => {
+          console.log("5757575757");
+          console.log(res);
+        }).catch(error => {
+          console.log("61616");
+          console.log(error);
+        });
+
+      }
+      else{
+        this.refs.toast.show("没有登录", Toast.Duration.long, Toast.Position.bottom);
+      }
+    }).catch(error => {
+      console.log(error);
+    });
   };
+
   componentDidMount = () => {
     console.log("==============");
+    this.getMessage();
   };
-  newMessage = () => {
+  getMessage = () => {
     Session.getUser().then( user => {
       console.log("======token");
       console.log(user);
-      query = {
-        latitude: this.props.position.latitude,
-        longitude: this.props.position.longitude,
-        limit_days: this.state.limitDays,
-        limit_user_accounts: 100000000,
-        content: this.state.currentText,
-        token: user.token,
-        is_comment: this.state.isComment
-      };
-      Request.post({url: Api.newMessagUrl, data: query}).then(res => {
-
-        console.log(res.message);
-        if(res.status == 200){
-          Actions.login({info: '请先登录'});
-        }else if(res.status == 0){
-          Actions.mapInfo({info: '留言成功'});
-        }else{
-          alert(res.message.replace(/[a-zA-Z]/g,""));
-        }
+      query = {id: this.props.messageId, token: user ? user.token : "" };
+      Request.get({url: Api.getMessageById, data: query}).then(res => {
+        console.log(res);
+        let result = res.result
+        this.setState({
+          avatar: Api.root + result.user.avatar,
+          currentText: result.content,
+          limitDays: result.limit_days,
+          isComment: result.is_comment,
+          likeCounts: result.like_counts,
+          readCounts: result.read_counts,
+          commentCounts: "50",
+          nickname: result.user.nickname,
+          published_at: result.published_at,
+          liked: result.liked,
+        });
       }).catch(error => {
         console.log(error);
       })
@@ -113,6 +107,7 @@ https://github.com/Sigil-Ebook/Sigil\
   render() {
     return (
       <View style={styles.container}>
+        <Toast ref="toast" />
         {/* 导航，返回按钮*/}
         <View style={[styles.back]}>
           <TouchableOpacity
@@ -132,11 +127,27 @@ https://github.com/Sigil-Ebook/Sigil\
           <View style={styles.mainGroup}>
             <View style={styles.messageInfo}>
               <View style={[styles.userAvatar]}>
-                <Image style={{height:40,width: 40,borderRadius:50}} source={require("../icons/test_user.jpg")} />
+                <Image style={{height:40,width: 40,borderRadius:50}} source={{uri: this.state.avatar}} />
               </View>
 
-              <View style={[styles.infoRight]}>
-                <Text style={[styles.nicknameText]}>{this.state.nickname}</Text>
+              <View style={[styles.infoRight,styles.flex1]}>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={[styles.nicknameText,styles.flex1]}>{this.state.nickname}</Text>
+                  <View style={[{alignItems:'flex-end',flex:1,marginRight:10}]}>
+                    <ModalDropdown style={{alignItems: 'center',flexDirection:'row'}}
+                      options={['编辑','删除']}
+                      dropdownStyle={{width:90,height:72,justifyContent:'center',fontSize:13,color: 'red'}}
+                      onSelect={(idx, value) => {
+                        console.log(value);
+                      }}
+                    >
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={[styles.nicknameText]}>操作</Text>
+                        <Image style={{width:20,height:20}} source={require("../icons/drop-down.png")} />
+                      </View>
+                    </ModalDropdown>
+                  </View>
+                </View>
                 <View style={[ styles.messageCount, styles.grayText ]}>
                   <Text style={[styles.grayText]}>{this.state.likeCounts} 喜欢 </Text>
                   <Text style={[styles.grayText]}>{this.state.readCounts} 阅读 </Text>
@@ -286,7 +297,7 @@ const styles = StyleSheet.create({
     marginTop:5,
   },
   infoRight:{
-    marginLeft: 8
+    marginLeft: 8,
   },
   nickname:{
     fontSize: 14,
