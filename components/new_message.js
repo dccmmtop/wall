@@ -39,6 +39,7 @@ export default class NewMessage extends Component {
       query = {
         latitude: this.props.position.latitude,
         longitude: this.props.position.longitude,
+        location: this.props.position.poiName,
         limit_days: this.state.limitDays,
         limit_user_accounts: 100000000,
         content: this.state.currentText,

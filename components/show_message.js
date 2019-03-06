@@ -18,8 +18,42 @@ export default class ShowMessage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentText: "iii\ndvgf\ndsfsddi\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfsad\n",
-      commentText: "iii\ndvgf\ndsfsddfsad\n",
+      currentText: " 11. Buka\
+电子书管理。开源、免费。\
+https://github.com/oguzhaninan/Buka/releases\
+★ star：578\n\
+\n10. Calibre\
+难以置信的丑但很强大的电子书管理和转换软件。开源、免费。\
+https://calibre-ebook.com/\
+\n9. Evince\
+Evince 是一款支持多种格式的文档查看器。Evince 的目标是用一个简单的应用取代已经存在于 GNOME 桌面的多种文档查看器。开源、免费。\
+https://wiki.gnome.org/Apps/Evince\
+\n8. FBReader\
+最流行的电子阅读应用之一。免费。\
+https://fbreader.org/content/fbreader-beta-linux-desktop\
+\n7. Foxit\
+Foxit Reader 8.0——获得殊荣的 PDF 阅读器。免费。\
+https://www.foxitsoftware.com/pdf-reader/\
+\n6. Lucidor\
+Lucidor 是一个阅读和处理电子书的电脑软件。Lucidor 支持 EPUB 格式的电子书和 OPDS 格式的目录。免费。\
+http://www.lucidor.org/lucidor/\
+\n5. MasterPDF editor\
+Master PDF Editor 一款方便而智能的 Linux PDF 编辑器。免费。\
+https://code-industry.net/free-pdf-editor/\
+\n4. MuPDF\
+一款轻量级的 PDF 和 XPS 查看器。开源、免费。\
+https://mupdf.com/\
+\n3. Okular\
+Okular 由 KDE 原始开发的通用文档查看器。Okular 可以在多个平台上工作，包括但不限于 Linux，Windows，Mac OS X，BSD 等等。免费。\
+https://okular.kde.org/\
+\n2. qpdf\
+qpdfview 是一款标签页式文档查看器。开源、免费。\
+https://launchpad.net/qpdfview\
+\n1. Sigil\
+Sigil 是一款多平台 EPUB 电子书编辑器。开源、免费。\
+https://github.com/Sigil-Ebook/Sigil\
+      ",
+      commentText: "",
       limitDays: "1000",
       isComment: true,
       likeCounts: 35,
@@ -43,7 +77,6 @@ export default class ShowMessage extends Component {
   };
   componentDidMount = () => {
     console.log("==============");
-    console.log( JSON.stringify(this.props.position));
   };
   newMessage = () => {
     Session.getUser().then( user => {
@@ -155,9 +188,28 @@ export default class ShowMessage extends Component {
           <View style={[styles.showCommentGroup]}>
 
             <View style={[styles.commentGroupHead]}>
+              <Text style={styles.grayText}>评论({this.state.commentCounts})</Text>
             </View>
-
             <View style={[styles.commentGroupBody]}>
+              <View style={[styles.commentGroupBodyLeft,styles.flex5]}>
+                <Image style={{height:50,width: 50,borderRadius:50}} source={{uri: "https://upload.jianshu.io/users/upload_avatars/13198236/a6a4f353-186d-4df6-82a2-ec1847f5e56a.jpg?imageMogr2/auto-orient/strip|imageView2/1/w/240/h/240"}} />
+              </View>
+              <View style={[styles.commentGroupBodyRight,styles.flex1]}>
+                <View style={[styles.commentGroupBodyTop]}>
+                  <Text style={{fontSize: 16,fontWeight: 'bold', }}>卖报纸的小男孩</Text>
+                </View>
+                <View style={[styles.commentGroupBodyMedium]}>
+                  <Text style={{fontSize: 14 }}>@ WindsOfDanzon想学习 python吗，对 python感兴趣？关于讲 python知识的不仅有课程还有详细的视频，零基础也可以学习 python,感兴趣欢迎关注微信公众号☞【编程之路从0到1】喜欢 python的朋友我们可以相互探讨，相互学习。</Text>
+                </View>
+                <View style={[styles.commentGroupBodyBottom]}>
+                  <Text style={[styles.grayText]}> 2019-02-29 09:27 </Text>
+                  {/* <TouchableOpacity onPress={() => {this.dealCommentLike()}}> */}
+                  {/*   <Image style={{height:15,width: 15}} source={ this.state.liked ? require("../icons/red_like.png") : require("../icons/like.png")} /> */}
+                  {/* </TouchableOpacity> */}
+                </View>
+
+              </View>
+
             </View>
 
           </View>
@@ -171,7 +223,8 @@ export default class ShowMessage extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F2F2F2"
+    backgroundColor: "#F2F2F2",
+    marginBottom: 20,
   },
   back: {
     backgroundColor: "white",
@@ -247,7 +300,7 @@ const styles = StyleSheet.create({
     paddingLeft:10,
     backgroundColor: "white",
     paddingRight:10,
-    paddingBottom: 5
+    paddingBottom: 10
   },
   commentBtn:{
     backgroundColor: "#50adaa",
@@ -286,6 +339,33 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderBottomLeftRadius:5,
     borderBottomRightRadius:5,
+  },
+  commentGroupHead:{
+    height: 40,
+    backgroundColor: "#F7F7F7",
+    justifyContent: 'center',
+    paddingLeft: 20,
+    marginTop: 10,
+    borderBottomWidth: 1,
+    borderColor: "#dcdcdc"
+  },
+  commentGroupBody:{
+    flexDirection: "row",
+    backgroundColor:"white",
+    paddingLeft: 20,
+    paddingRight: 10,
+    paddingTop:5,
+  },
+  commentGroupBodyLeft:{
+  },
+  commentGroupBodyRight:{
+    marginTop: 3,
+    marginLeft:3,
+  },
+  commentGroupBodyBottom:{
+    marginTop: 10,
+    flexDirection: 'row',
+    height: 25,
   },
   hint: {
     marginLeft: 10

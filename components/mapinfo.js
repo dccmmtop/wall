@@ -126,7 +126,7 @@ export default class App extends Component {
         coordinate={{latitude: item.latitude, longitude: item.longitude}}
         infoWindowDisabled
         onPress={() => {
-          alert(item.content)
+          Actions.show_message({messgeID: item.id});
         }}
       />
     ));

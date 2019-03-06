@@ -19,11 +19,11 @@ export default class App extends Component {
     return (
       <Router  backAndroidHandler={this.onBackPress} >
         <Stack key="root" hideNavBar >
-          <Scene key="mapInfo" component={MapInfo}  />
+          <Scene key="mapInfo" component={MapInfo}  initial/>
           <Scene key="login" component={Login} />
           <Scene key="regist" component={Regist} />
           <Scene key="new_message" component={NewMessage} />
-          <Scene key="show_message" component={ShowMessage} initial/>
+          <Scene key="show_message" component={ShowMessage} />
         </Stack>
       </Router>
     );
