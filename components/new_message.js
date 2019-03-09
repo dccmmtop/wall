@@ -13,7 +13,7 @@ import Request from "../lib/Request";
 import Session from "../lib/Session";
 import Api from "../lib/Api";
 
-export default class CheckInRecordList extends Component {
+export default class NewMessage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -39,6 +39,7 @@ export default class CheckInRecordList extends Component {
       query = {
         latitude: this.props.position.latitude,
         longitude: this.props.position.longitude,
+        location: this.props.position.poiName,
         limit_days: this.state.limitDays,
         limit_user_accounts: 100000000,
         content: this.state.currentText,
