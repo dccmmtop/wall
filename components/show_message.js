@@ -4,6 +4,7 @@ import {
   Text,
   View,
   Image,
+  Alert,
   TextInput,
   TouchableOpacity,
   CheckBox,
@@ -30,7 +31,8 @@ export default class ShowMessage extends Component {
       nickname: '采蘑菇的小姑娘',
       published_at: "2019-03-01 10:23",
       liked: false,
-      avatar: Api.root + "/uploads/loading.jpg"
+      avatar: Api.root + "/uploads/loading.jpg",
+      currentUser: null
     };
   }
   setText = text => {
@@ -72,8 +74,10 @@ export default class ShowMessage extends Component {
   };
 
   componentDidMount = () => {
-    console.log("==============");
     this.getMessage();
+    Session.getUser().then(user => {
+      this.setState({currentUser: user})
+    });
   };
   getMessage = () => {
     Session.getUser().then( user => {
@@ -103,8 +107,48 @@ export default class ShowMessage extends Component {
       // Actions.login({info: '请先登录'});
     });
   };
+  deleteMessage = () => {
+    query = {
+      token: this.state.currentUser.token,
+      id: this.props.messageId
+    }
+    Request.post({url: Api.deleteMessage, data: query}).then(res => {
+      if(res.status == 0)
+        Actions.mapInfo({info: "删除成功"})
+      else
+        alert("提醒",res.message)
+    }).catch(error => {
+      console.log(error);
+    });
+  }
+  deal_option = (value) =>{
+    if(value == "编辑"){
+    }
+    else{
+      Alert.alert('删除','确认删除此篇文章吗？',[{text: '取消', onPress: () =>{}},
+          {text:"确认", onPress:this.deleteMessage}])
+    }
+  }
 
   render() {
+    let optional = null
+    if(this.state.currentUser && this.state.currentUser.nickname == this.state.nickname){
+      optional =(
+        <View style={[{alignItems:'flex-end',flex:1,marginRight:10}]}>
+          <ModalDropdown style={{alignItems: 'center',flexDirection:'row'}}
+            options={['编辑','删除']}
+            dropdownStyle={{width:90,height:72,justifyContent:'center',fontSize:13}}
+            onSelect={(idx, value) => {
+              this.deal_option(value);
+            }}
+          >
+            <View style={{flexDirection: 'row'}}>
+              <Text style={[styles.nicknameText]}>操作</Text>
+              <Image style={{width:20,height:20}} source={require("../icons/drop-down.png")} />
+            </View>
+          </ModalDropdown>
+        </View>)
+    }
     return (
       <View style={styles.container}>
         <Toast ref="toast" />
@@ -133,20 +177,7 @@ export default class ShowMessage extends Component {
               <View style={[styles.infoRight,styles.flex1]}>
                 <View style={{flexDirection: 'row'}}>
                   <Text style={[styles.nicknameText,styles.flex1]}>{this.state.nickname}</Text>
-                  <View style={[{alignItems:'flex-end',flex:1,marginRight:10}]}>
-                    <ModalDropdown style={{alignItems: 'center',flexDirection:'row'}}
-                      options={['编辑','删除']}
-                      dropdownStyle={{width:90,height:72,justifyContent:'center',fontSize:13,color: 'red'}}
-                      onSelect={(idx, value) => {
-                        console.log(value);
-                      }}
-                    >
-                      <View style={{flexDirection: 'row'}}>
-                        <Text style={[styles.nicknameText]}>操作</Text>
-                        <Image style={{width:20,height:20}} source={require("../icons/drop-down.png")} />
-                      </View>
-                    </ModalDropdown>
-                  </View>
+                  {optional}
                 </View>
                 <View style={[ styles.messageCount, styles.grayText ]}>
                   <Text style={[styles.grayText]}>{this.state.likeCounts} 喜欢 </Text>

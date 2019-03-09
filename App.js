@@ -5,15 +5,17 @@ import Login from "./components/login";
 import Regist from "./components/regist";
 import NewMessage from "./components/new_message";
 import ShowMessage from "./components/show_message";
-
+import { BackHandler } from "react-native";
 
 export default class App extends Component {
   onBackPress() {
-    if (Actions.state.index === 0){
+    if (Actions.currentScene === "mapInfo"){
+      BackHandler.exitApp();
       return false;
+    }else{
+      Actions.pop()
+      return true
     }
-    Actions.pop()
-    return true
   }
   render() {
     return (
