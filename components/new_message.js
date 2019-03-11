@@ -18,7 +18,7 @@ export default class NewMessage extends Component {
     super(props);
     this.state = {
       currentText: "中华人民共和国中央人民政府",
-      limitDays: "1000",
+      limitDays: "",
       isComment: true,
     };
   }
@@ -118,10 +118,11 @@ export default class NewMessage extends Component {
         placeholderTextColor="gray"
         underlineColorAndroid="transparent"
         onChangeText={text => {
-          this.setState({ limitDays: text });
+          this.setState({ limitDays: text.toString() });
         }}
-        placeholder="默认永不过期"
         keyboardType='numeric'
+        value={this.state.limitDays}
+        placeholder="默认永不过期"
       />
     </View>
     <View style={[ styles.limitGroup , styles.flex1]} >
