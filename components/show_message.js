@@ -28,7 +28,7 @@ export default class ShowMessage extends Component {
       isComment: true,
       likeCounts: 35,
       readCounts: '398',
-      commentCounts: '50',
+      commentCounts: '0',
       nickname: '采蘑菇的小姑娘',
       published_at: '2019-03-01 10:23',
       liked: false,
@@ -41,11 +41,7 @@ export default class ShowMessage extends Component {
     this.total = null;
     this.comments = {};
   }
-  setText = text => {
-    this.setState({
-      commentText: text,
-    });
-  };
+  setText = text => {};
   dealLike = () => {
     Session.getUser()
       .then(user => {
@@ -98,7 +94,6 @@ export default class ShowMessage extends Component {
       };
       Request.get({url: Api.getComments, data: query})
         .then(res => {
-          console.log(res);
           this.total_pages = res.total_pages;
           this.setState({comments: res.comments});
         })
@@ -114,8 +109,6 @@ export default class ShowMessage extends Component {
   getMessage = () => {
     Session.getUser()
       .then(user => {
-        console.log('======token');
-        console.log(user);
         query = {id: this.props.messageId, token: user ? user.token : ''};
         Request.get({url: Api.getMessageById, data: query})
           .then(res => {
@@ -178,10 +171,43 @@ export default class ShowMessage extends Component {
     }
   };
   dealCommentLike = commentId => {
+    if (!this.currentUser) {
+      this.refs.toast.show(
+        '没有登录',
+        Toast.Duration.long,
+        Toast.Position.bottom,
+      );
+      return;
+    }
     let comments = this.state.comments;
     comments[commentId].liked = !comments[commentId].liked;
     this.setState({comments: comments});
-    // TODO 取消like API
+    let url = null;
+    if (comments[commentId].liked) {
+      url = Api.commentLike;
+    } else {
+      url = Api.cancelCommentLike;
+    }
+    query = {
+      token: this.currentUser.token,
+      comment_id: commentId.replace('id-', ''),
+    };
+    Request.get({url: url, data: query})
+      .then(res => {
+        console.log(res);
+        if (res.status != 0) {
+          comments[commentId].liked = !comments[commentId].liked;
+          this.setState({comments: comments});
+          this.refs.toast.show(
+            '操作失败',
+            Toast.Duration.long,
+            Toast.Position.bottom,
+          );
+        }
+      })
+      .catch(error => {
+        Alert.alert('提醒', error);
+      });
   };
   loadMoreData = () => {
     this.page += 1;
@@ -202,7 +228,42 @@ export default class ShowMessage extends Component {
         })
         .catch(error => {});
     } else {
-      console.log('000');
+    }
+  };
+  createComment = () => {
+    commentTextLength = this.state.commentText.trim.length;
+    if (commentTextLength == 0) {
+      Alert.alert('提醒', '评论不能为空');
+      return;
+    }
+    if (commentTextLength > 200) {
+      Alert.alert('提醒', '评论不能超过两百字');
+      return;
+    }
+    if (this.currentUser) {
+      query = {
+        token: this.currentUser.token,
+        content: this.state.commentText,
+        message_id: this.props.messageId,
+      };
+      Request.post({url: Api.createComment, data: query})
+        .then(res => {
+          if (res.status == 0) {
+            console.log(res);
+            this.setState({
+              comments: Object.assign(res.comment, this.state.comments),
+              commentText: '',
+              commentCounts: this.commentCounts + 1,
+            });
+          } else {
+            Alert.alert('提醒', res.message.replace(/[a-zA-Z]/g, ''));
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    } else {
+      Actions.login({info: '请先登录'});
     }
   };
   renderFooter = () => {
@@ -219,13 +280,63 @@ export default class ShowMessage extends Component {
     } else {
       return (
         <View style={styles.comentFooter}>
-          <TouchableOpacity
-            style={styles.loadMoreBtn}>
+          <TouchableOpacity style={styles.loadMoreBtn}>
             <Text style={styles.grayText}> ——end—— </Text>
           </TouchableOpacity>
         </View>
       );
     }
+  };
+
+  showTrash = (commendId, commentUserNickname) => {
+    let trash = (
+      <View style={{flex: 1, alignItems: 'flex-end', paddingRight: 10}}>
+        <TouchableOpacity
+          onPress={() => {
+            Alert.alert('删除', '确认删除评论吗？', [
+              {text: '取消', onPress: () => {}},
+              {
+                text: '确认',
+                onPress: () => {
+                  this.deleteComment(commendId);
+                },
+              },
+            ]);
+          }}>
+          <Image
+            style={{height: 15, width: 15}}
+            source={require('../icons/trash.png')}
+          />
+        </TouchableOpacity>
+      </View>
+    );
+    // if (this.currentUser && this.state.nickname == this.currentUser.nickname) {
+    //   return trash;
+    // }
+    if (this.currentUser && commentUserNickname == this.currentUser.nickname) {
+      return trash;
+    }
+  };
+
+  deleteComment = commentId => {
+    query = {
+      id: commentId,
+      token: this.currentUser ? this.currentUser.token : ""
+    }
+    Request.post({url: Api.deleteComment, data: query})
+      .then(res => {
+        if (res.status == 0) {
+          comments = this.state.comments;
+          delete comments['id-' + commentId];
+          console.log('=================');
+          console.log(comments);
+          this.setState({
+            comments: comments,
+            commentCounts: this.state.commentCounts - 1,
+          });
+        }
+      })
+      .catch(error => {});
   };
   listItem = () => {
     return (
@@ -248,9 +359,13 @@ export default class ShowMessage extends Component {
               </View>
               <View style={[styles.commentGroupBodyRight, styles.flex1]}>
                 <View style={[styles.commentGroupBodyTop]}>
-                  <Text style={{fontSize: 16, fontWeight: 'bold'}}>
+                  <Text style={{fontSize: 16, fontWeight: 'bold', flex: 1}}>
                     {item.user.nickname}
                   </Text>
+                  {this.showTrash(
+                    item.id.replace('id-', ''),
+                    item.user.nickname,
+                  )}
                 </View>
                 <View style={[styles.commentGroupBodyMedium]}>
                   <Text style={{fontSize: 14}}>{item.content}</Text>
@@ -419,11 +534,15 @@ export default class ShowMessage extends Component {
               underlineColorAndroid="transparent"
               value={this.state.commentText}
               onChangeText={text => {
-                this.setText(text);
+                this.setState({
+                  commentText: text,
+                });
               }}
             />
             <View style={{flexDirection: 'row-reverse'}}>
-              <TouchableOpacity style={[styles.commentBtn]}>
+              <TouchableOpacity
+                style={[styles.commentBtn]}
+                onPress={() => this.createComment()}>
                 <Text style={styles.commentText}>发表</Text>
               </TouchableOpacity>
             </View>
@@ -585,6 +704,9 @@ const styles = StyleSheet.create({
   commentGroupBodyRight: {
     marginTop: 3,
     marginLeft: 3,
+  },
+  commentGroupBodyTop: {
+    flexDirection: 'row',
   },
   commentGroupBodyBottom: {
     marginTop: 10,

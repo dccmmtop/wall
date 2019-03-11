@@ -57,7 +57,7 @@ export default class Login extends Component {
         if(res.status != 0){
           alert(res.message);
         }else{
-          Session.login(res.token,res.nickname,res.email)
+          Session.login(res.token,res.nickname,res.email,res.avatar)
           this.refs.toast.show("登录成功", Toast.Duration.long, Toast.Position.bottom);
           setTimeout( Actions.mapInfo,1500)
         }
