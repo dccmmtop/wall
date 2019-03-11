@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   CheckBox,
   ScrollView,
+  FlatList,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
 import Request from '../lib/Request';
@@ -32,9 +33,13 @@ export default class ShowMessage extends Component {
       published_at: '2019-03-01 10:23',
       liked: false,
       avatar: Api.root + '/uploads/loading.jpg',
-      currentUser: null,
       location: '',
+      comments: [],
     };
+    this.currentUser = null;
+    this.page = 1;
+    this.total = null;
+    this.comments = {};
   }
   setText = text => {
     this.setState({
@@ -85,10 +90,26 @@ export default class ShowMessage extends Component {
   componentDidMount = () => {
     this.getMessage();
     Session.getUser().then(user => {
-      this.setState({currentUser: user});
+      this.currentUser = user;
+      query = {
+        token: user ? user.token : '',
+        id: this.props.messageId,
+        page: this.page,
+      };
+      Request.get({url: Api.getComments, data: query})
+        .then(res => {
+          console.log(res);
+          this.total_pages = res.total_pages;
+          this.setState({comments: res.comments});
+        })
+        .catch(error => {});
     });
-    if(this.props.info)
-      this.refs.toast.show(this.props.info, Toast.Duration.long, Toast.Position.bottom);
+    if (this.props.info)
+      this.refs.toast.show(
+        this.props.info,
+        Toast.Duration.long,
+        Toast.Position.bottom,
+      );
   };
   getMessage = () => {
     Session.getUser()
@@ -107,7 +128,7 @@ export default class ShowMessage extends Component {
               isComment: result.is_comment,
               likeCounts: result.like_counts,
               readCounts: result.read_counts,
-              commentCounts: '50',
+              commentCounts: result.comment_counts,
               nickname: result.user.nickname,
               published_at: result.published_at,
               liked: result.liked,
@@ -125,7 +146,7 @@ export default class ShowMessage extends Component {
   };
   deleteMessage = () => {
     query = {
-      token: this.state.currentUser.token,
+      token: this.currentUser.token,
       id: this.props.messageId,
     };
     Request.post({url: Api.deleteMessage, data: query})
@@ -144,9 +165,9 @@ export default class ShowMessage extends Component {
           content: this.state.currentText,
           limitDays: this.state.limitDays,
           isComment: this.state.isComment,
-          currentUser: this.state.currentUser,
+          currentUser: this.currentUser,
           location: this.state.location,
-          id: this.props.messageId
+          id: this.props.messageId,
         },
       });
     } else {
@@ -156,13 +177,117 @@ export default class ShowMessage extends Component {
       ]);
     }
   };
-
+  dealCommentLike = commentId => {
+    let comments = this.state.comments;
+    comments[commentId].liked = !comments[commentId].liked;
+    this.setState({comments: comments});
+    // TODO 取消like API
+  };
+  loadMoreData = () => {
+    this.page += 1;
+    if (this.page <= this.total_pages) {
+      user = this.currentUser;
+      query = {
+        token: user ? user.token : '',
+        id: this.props.messageId,
+        page: this.page,
+      };
+      Request.get({url: Api.getComments, data: query})
+        .then(res => {
+          console.log(res);
+          this.total_pages = res.total_pages;
+          this.setState({
+            comments: Object.assign(this.state.comments, res.comments),
+          });
+        })
+        .catch(error => {});
+    } else {
+      console.log('000');
+    }
+  };
+  renderFooter = () => {
+    if (this.page + 1 <= this.total_pages) {
+      return (
+        <View style={styles.comentFooter}>
+          <TouchableOpacity
+            onPress={this.loadMoreData}
+            style={styles.loadMoreBtn}>
+            <Text style={styles.grayText}> ——查看更多评论—— </Text>
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.comentFooter}>
+          <TouchableOpacity
+            style={styles.loadMoreBtn}>
+            <Text style={styles.grayText}> ——end—— </Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+  };
+  listItem = () => {
+    return (
+      <View style={[styles.recordList]}>
+        <FlatList
+          data={Object.values(this.state.comments)}
+          ListFooterComponent={this.renderFooter}
+          keyExtractor={(item, index) => {
+            return item.id + item.liked.toString();
+          }}
+          renderItem={({item}) => (
+            <View style={[styles.commentGroupBody]}>
+              <View style={[styles.commentGroupBodyLeft, styles.flex5]}>
+                <Image
+                  style={{height: 50, width: 50, borderRadius: 50}}
+                  source={{
+                    uri: Api.root + item.user.avatar,
+                  }}
+                />
+              </View>
+              <View style={[styles.commentGroupBodyRight, styles.flex1]}>
+                <View style={[styles.commentGroupBodyTop]}>
+                  <Text style={{fontSize: 16, fontWeight: 'bold'}}>
+                    {item.user.nickname}
+                  </Text>
+                </View>
+                <View style={[styles.commentGroupBodyMedium]}>
+                  <Text style={{fontSize: 14}}>{item.content}</Text>
+                </View>
+                <View style={[styles.commentGroupBodyBottom]}>
+                  <Text style={[styles.grayText, styles.flex1]}>
+                    {item.published_at}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.dealCommentLike(item.id);
+                    }}
+                    style={{
+                      alignItems: 'flex-end',
+                      flex: 1,
+                      paddingRight: 10,
+                    }}>
+                    <Image
+                      style={{height: 15, width: 15}}
+                      source={
+                        this.state.comments[item.id].liked
+                          ? require('../icons/red_like.png')
+                          : require('../icons/like.png')
+                      }
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          )}
+        />
+      </View>
+    );
+  };
   render() {
     let optional = null;
-    if (
-      this.state.currentUser &&
-      this.state.currentUser.nickname == this.state.nickname
-    ) {
+    if (this.currentUser && this.currentUser.nickname == this.state.nickname) {
       optional = (
         <View style={[{alignItems: 'flex-end', flex: 1, marginRight: 10}]}>
           <ModalDropdown
@@ -241,11 +366,14 @@ export default class ShowMessage extends Component {
             </View>
 
             <View style={styles.footer}>
-                  <Image
-                    style={{height: 20, width: 20,alignSelf:'flex-end'}} source={require('../icons/location_1.png')
-                    }
-                  />
-              <Text style={[styles.grayText,{alignSelf: "flex-end"}]}> {this.state.location} </Text>
+              <Image
+                style={{height: 20, width: 20, alignSelf: 'flex-end'}}
+                source={require('../icons/location_1.png')}
+              />
+              <Text style={[styles.grayText, {alignSelf: 'flex-end'}]}>
+                {' '}
+                {this.state.location}{' '}
+              </Text>
               <View
                 style={{
                   flex: 1,
@@ -307,38 +435,7 @@ export default class ShowMessage extends Component {
                 评论({this.state.commentCounts})
               </Text>
             </View>
-            <View style={[styles.commentGroupBody]}>
-              <View style={[styles.commentGroupBodyLeft, styles.flex5]}>
-                <Image
-                  style={{height: 50, width: 50, borderRadius: 50}}
-                  source={{
-                    uri:
-                      'https://upload.jianshu.io/users/upload_avatars/13198236/a6a4f353-186d-4df6-82a2-ec1847f5e56a.jpg?imageMogr2/auto-orient/strip|imageView2/1/w/240/h/240',
-                  }}
-                />
-              </View>
-              <View style={[styles.commentGroupBodyRight, styles.flex1]}>
-                <View style={[styles.commentGroupBodyTop]}>
-                  <Text style={{fontSize: 16, fontWeight: 'bold'}}>
-                    卖报纸的小男孩
-                  </Text>
-                </View>
-                <View style={[styles.commentGroupBodyMedium]}>
-                  <Text style={{fontSize: 14}}>
-                    @ WindsOfDanzon想学习 python吗，对 python感兴趣？关于讲
-                    python知识的不仅有课程还有详细的视频，零基础也可以学习
-                    python,感兴趣欢迎关注微信公众号☞【编程之路从0到1】喜欢
-                    python的朋友我们可以相互探讨，相互学习。
-                  </Text>
-                </View>
-                <View style={[styles.commentGroupBodyBottom]}>
-                  <Text style={[styles.grayText]}> 2019-02-29 09:27 </Text>
-                  {/* <TouchableOpacity onPress={() => {this.dealCommentLike()}}> */}
-                  {/*   <Image style={{height:15,width: 15}} source={ this.state.liked ? require("../icons/red_like.png") : require("../icons/like.png")} /> */}
-                  {/* </TouchableOpacity> */}
-                </View>
-              </View>
-            </View>
+            {this.listItem()}
           </View>
         </ScrollView>
       </View>
@@ -350,7 +447,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F2F2F2',
-    marginBottom: 20,
+    // marginBottom: 20,
   },
   back: {
     backgroundColor: 'white',
@@ -481,6 +578,8 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 10,
     paddingTop: 5,
+    borderBottomWidth: 1,
+    borderColor: '#dcdcdc',
   },
   commentGroupBodyLeft: {},
   commentGroupBodyRight: {
@@ -558,5 +657,19 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     fontSize: 13,
     // marginRight: 10,
+  },
+  commentFooter: {
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  loadMoreBtn: {
+    padding: 10,
+    // backgroundColor: 'white',
+    // borderRadius: 4,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
