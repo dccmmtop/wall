@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,63 +6,71 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   TouchableOpacity,
-  Image
-} from "react-native";
-import { Actions } from "react-native-router-flux";
-import Api from "../lib/Api";
-import Request from "../lib/Request";
-import Session from "../lib/Session";
-import Toast from "react-native-whc-toast";
+  Image,
+} from 'react-native';
+import {Actions} from 'react-native-router-flux';
+import Api from '../lib/Api';
+import Request from '../lib/Request';
+import Session from '../lib/Session';
+import Toast from 'react-native-whc-toast';
 
 export default class Login extends Component {
   constructor(props) {
     super(props);
-    this.state = { nickname: "dccmmtop@foxmail.com", password: "1234567" };
+    this.state = {nickname: 'dccmmtop@foxmail.com', password: '1234567'};
   }
 
   getuserName = () => {
     return this.state.userName;
   };
 
-
   componentDidMount = () => {
     if (this.props.info) {
-      this.refs.toast.show( this.props.info, Toast.Duration.short, Toast.Position.bottom);
+      this.refs.toast.show(
+        this.props.info,
+        Toast.Duration.short,
+        Toast.Position.bottom,
+      );
     }
   };
 
   validateLogin = () => {
-    console.log("enter validate");
-    if(this.state.nickname.length == 0){
-      alert("邮箱或昵称不能为空");
+    console.log('enter validate');
+    if (this.state.nickname.length == 0) {
+      alert('邮箱或昵称不能为空');
       return false;
     }
-    if(this.state.password.length == 0){
-      alert("密码不能为空");
+    if (this.state.password.length == 0) {
+      alert('密码不能为空');
       return false;
     }
     return true;
   };
 
   _onClickLogin = () => {
-    console.log("onClickLogin");
+    console.log('onClickLogin');
     //是否能通过验证
     if (this.validateLogin()) {
       query = {
         email_name: this.state.nickname,
-        password: this.state.password
+        password: this.state.password,
       };
-      Request.post({url: Api.login_url, data: query}).then(res => {
-        console.log(res);
-        if(res.status != 0){
-          alert(res.message);
-        }else{
-          Session.login(res.token,res.nickname,res.email,res.avatar)
-          this.refs.toast.show("登录成功", Toast.Duration.long, Toast.Position.bottom);
-          setTimeout( Actions.mapInfo,1500)
-        }
-      }).catch(error => {
-      });
+      Request.post({url: Api.login_url, data: query})
+        .then(res => {
+          console.log(res);
+          if (res.status != 0) {
+            alert(res.message);
+          } else {
+            Session.login(res.token, res.nickname, res.email, res.avatar);
+            this.refs.toast.show(
+              '登录成功',
+              Toast.Duration.long,
+              Toast.Position.bottom,
+            );
+            setTimeout(Actions.mapInfo, 1500);
+          }
+        })
+        .catch(error => {});
     }
   };
 
@@ -86,8 +94,7 @@ export default class Login extends Component {
         style={styles.container}
         onPress={() => {
           this.hideInputBox();
-        }}
-      >
+        }}>
         <View style={styles.container}>
           <Toast ref="toast" />
 
@@ -97,7 +104,7 @@ export default class Login extends Component {
           <View style={styles.inputGroup}>
             <Image
               style={[styles.inputLabel]}
-              source={require("../icons/user.png")}
+              source={require('../icons/user.png')}
             />
             <TextInput
               ref="inputLogin"
@@ -107,16 +114,16 @@ export default class Login extends Component {
               underlineColorAndroid="transparent"
               onFocus={() => this.refs.toast.close(true)}
               onChangeText={text => {
-                this.setState({ nickname: text });
+                this.setState({nickname: text});
               }}
               selectTextOnFocus={true}
               value={this.state.nickname}
             />
           </View>
-          <View style={[styles.inputGroup, { borderTopWidth: 0 }]}>
+          <View style={[styles.inputGroup, {borderTopWidth: 0}]}>
             <Image
               style={[styles.inputLabel]}
-              source={require("../icons/password.png")}
+              source={require('../icons/password.png')}
             />
             <TextInput
               ref="inputPassword"
@@ -126,7 +133,7 @@ export default class Login extends Component {
               underlineColorAndroid="transparent"
               onFocus={() => this.refs.toast.close(true)}
               onChangeText={text => {
-                this.setState({ password: text });
+                this.setState({password: text});
               }}
               secureTextEntry
               selectTextOnFocus={true}
@@ -138,20 +145,18 @@ export default class Login extends Component {
             style={styles.loginBtn}
             onPress={() => {
               this._onClickLogin();
-            }}
-          >
+            }}>
             <Text style={styles.loginText}>登 录</Text>
           </TouchableOpacity>
           <TouchableOpacity
             //style={styles.loginBtn}
-      onPress={() => {
-        // this._onClickLogin();
-        Actions.regist();
-      }}
-    >
-      <Text style={styles.registText}>注册新账号>></Text>
-    </TouchableOpacity>
-  </View>
+            onPress={() => {
+              // this._onClickLogin();
+              Actions.regist();
+            }}>
+            <Text style={styles.registText}>注册新账号>></Text>
+          </TouchableOpacity>
+        </View>
       </TouchableWithoutFeedback>
     );
   }
@@ -160,56 +165,56 @@ export default class Login extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent:'center'
+    justifyContent: 'center',
   },
   title: {
     fontSize: 35,
-    alignSelf: "center",
-    color: "#42b0ae",
-    marginBottom: 60
+    alignSelf: 'center',
+    color: '#42b0ae',
+    marginBottom: 60,
   },
   flex: {
-    flex: 1
+    flex: 1,
   },
   loginBtn: {
     marginTop: 50,
     marginLeft: 30,
     marginRight: 30,
-    backgroundColor: "#42b0ae",
-    justifyContent: "center",
-    height: 50
+    backgroundColor: '#42b0ae',
+    justifyContent: 'center',
+    height: 50,
   },
   loginText: {
     fontSize: 18,
-    textAlign: "center",
-    color: "white"
+    textAlign: 'center',
+    color: 'white',
   },
   registText: {
     fontSize: 15,
-    textAlign: "right",
-    color: "#42b0ae",
+    textAlign: 'right',
+    color: '#42b0ae',
     marginRight: 30,
-    marginTop: 15
+    marginTop: 15,
   },
   inputGroup: {
-    alignSelf: "stretch",
-    flexDirection: "row",
+    alignSelf: 'stretch',
+    flexDirection: 'row',
     height: 55,
     marginLeft: 30,
     marginRight: 30,
     borderBottomWidth: 1,
-    borderColor: "gray"
+    borderColor: 'gray',
   },
   inputLabel: {
     marginTop: 15,
     marginRight: 10,
     marginLeft: 10,
     width: 25,
-    height: 25
+    height: 25,
   },
   inputContent: {
-    color: "gray",
+    color: 'gray',
     flex: 1,
-    fontSize: 18
-  }
+    fontSize: 18,
+  },
 });

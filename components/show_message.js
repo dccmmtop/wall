@@ -231,7 +231,7 @@ export default class ShowMessage extends Component {
     }
   };
   createComment = () => {
-    commentTextLength = this.state.commentText.trim.length;
+    commentTextLength = this.state.commentText.trim().length;
     if (commentTextLength == 0) {
       Alert.alert('提醒', '评论不能为空');
       return;
@@ -310,9 +310,9 @@ export default class ShowMessage extends Component {
         </TouchableOpacity>
       </View>
     );
-    // if (this.currentUser && this.state.nickname == this.currentUser.nickname) {
-    //   return trash;
-    // }
+    if (this.currentUser && this.state.nickname == this.currentUser.nickname) {
+      return trash;
+    }
     if (this.currentUser && commentUserNickname == this.currentUser.nickname) {
       return trash;
     }
