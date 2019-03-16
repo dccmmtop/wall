@@ -25,6 +25,7 @@ export default class App extends Component {
         latitude: 0,
       },
     };
+    this.currentUser = null;
     //我的实时位置
     this._position = {
       longitude: 0,
@@ -48,14 +49,21 @@ export default class App extends Component {
       this.updateLocationState(location),
     );
     Geolocation.start();
+    Session.getUser().then(user => {
+      if (user) {
+        this.currentUser = user;
+      }
+    });
 
-    if (this.props.info) {
-      this.refs.toast.show(
-        this.props.info,
-        Toast.Duration.short,
-        Toast.Position.bottom,
-      );
-    }
+    setTimeout(() => {
+      if (this.props.info) {
+        this.refs.toast.show(
+          this.props.info,
+          Toast.Duration.short,
+          Toast.Position.bottom,
+        );
+      }
+    }, 500);
   }
 
   componentWillUnmount() {
@@ -190,7 +198,8 @@ export default class App extends Component {
           <View style={{flexGrow: 2}}>
             <TouchableOpacity
               onPress={() => {
-                Actions.me();
+                if (this.currentUser) Actions.me();
+                else Actions.login({info: '请先登录'});
               }}>
               <Image
                 style={[styles.imgSm, styles.navCenter]}

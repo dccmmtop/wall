@@ -62,12 +62,7 @@ export default class Login extends Component {
             alert(res.message);
           } else {
             Session.login(res.token, res.nickname, res.email, res.avatar);
-            this.refs.toast.show(
-              '登录成功',
-              Toast.Duration.long,
-              Toast.Position.bottom,
-            );
-            setTimeout(Actions.mapInfo, 1500);
+            Actions.mapInfo({info: '登录成功'});
           }
         })
         .catch(error => {});
