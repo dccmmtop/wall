@@ -112,8 +112,9 @@ export default class ShowMessage extends Component {
         query = {id: this.props.messageId, token: user ? user.token : ''};
         Request.get({url: Api.getMessageById, data: query})
           .then(res => {
-            console.log(res);
             let result = res.result;
+            console.log("***********************8");
+            console.log(res);
             this.setState({
               avatar: Api.root + result.user.avatar,
               currentText: result.content,
@@ -321,8 +322,8 @@ export default class ShowMessage extends Component {
   deleteComment = commentId => {
     query = {
       id: commentId,
-      token: this.currentUser ? this.currentUser.token : ""
-    }
+      token: this.currentUser ? this.currentUser.token : '',
+    };
     Request.post({url: Api.deleteComment, data: query})
       .then(res => {
         if (res.status == 0) {
