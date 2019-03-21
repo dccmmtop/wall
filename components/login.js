@@ -17,7 +17,7 @@ import Toast from 'react-native-whc-toast';
 export default class Login extends Component {
   constructor(props) {
     super(props);
-    this.state = {nickname: 'dccmmtop@foxmail.com', password: '1234567'};
+    this.state = {nickname: '', password: ''};
   }
 
   getuserName = () => {

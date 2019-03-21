@@ -99,12 +99,24 @@ export default class ShowMessage extends Component {
         })
         .catch(error => {});
     });
-    if (this.props.info)
-      this.refs.toast.show(
-        this.props.info,
-        Toast.Duration.long,
-        Toast.Position.bottom,
-      );
+    // if (this.props.info)
+    //   this.refs.toast.show(
+    //     this.props.info,
+    //     Toast.Duration.long,
+    //     Toast.Position.bottom,
+    //   );
+    console.log(this.props.refresh);
+    if(this.props.refresh){
+      Actions.refresh({info:"更新成功",messageId: this.props.messageId})
+    }
+  };
+
+  componentWillReceiveProps = info => {
+    if(info.refresh){
+      console.log("8888888888888*&*&*&*&*&*&*&*&*&*");
+      console.log(info);
+      this.setState({isComment: info.isComment})
+    }
   };
   getMessage = () => {
     Session.getUser()
@@ -521,14 +533,15 @@ export default class ShowMessage extends Component {
             </View>
           </View>
 
-          <View style={[styles.commentGroup]}>
+          <View style={[styles.commentGroup]}
+            pointerEvents={this.state.isComment ? "auto" : "none" } >
             <TextInput
               ref={input => {
                 this.textInput = input;
               }}
               value={this.state.text}
               style={[styles.adviceContent, styles.text]}
-              placeholder="写下你的评论"
+              placeholder={ this.state.isComment ? "写下你的评论" : "作者已关闭评论"}
               multiline={true}
               numberOfLines={5}
               maxLength={50}
@@ -543,6 +556,7 @@ export default class ShowMessage extends Component {
             <View style={{flexDirection: 'row-reverse'}}>
               <TouchableOpacity
                 style={[styles.commentBtn]}
+                disabled={!this.isComment}
                 onPress={() => this.createComment()}>
                 <Text style={styles.commentText}>发表</Text>
               </TouchableOpacity>
