@@ -16,11 +16,11 @@ import Toast from "react-native-whc-toast";
 export default class Login extends Component {
   constructor(props) {
     super(props);
-    this.state = { nickname: "邓超",
-      password: "1234567",
+    this.state = { nickname: "",
+      password: "",
       validate_code: "",
-      password_confirmation: "1234567",
-      email: "dccmmtop@foxmail.com",
+      password_confirmation: "",
+      email: "",
       validate_code_btn_text: "获取验证码",
       validate_code_btn_disabled: false};
     this.count = 5;

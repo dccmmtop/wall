@@ -9,11 +9,13 @@ buildscript {
         supportLibVersion = "27.1.1"
     }
     repositories {
+        maven{url 'http://maven.aliyun.com/nexus/content/groups/public/'}
         google()
         jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.4'
+
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -22,13 +24,16 @@ buildscript {
 
 allprojects {
     repositories {
+				// Add jitpack repository (added by react-native-spinkit)
+      maven{url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+				// maven { url "https://jitpack.io" }
         google()
-        mavenLocal()
-        jcenter()
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url "$rootDir/../node_modules/react-native/android"
-        }
+        // mavenLocal()
+        // jcenter(){ url 'http://jcenter.bintray.com/'}
+        // maven {
+        //     // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+        //     url "$rootDir/../node_modules/react-native/android"
+        // }
     }
 }
 
@@ -36,4 +41,14 @@ allprojects {
 task wrapper(type: Wrapper) {
     gradleVersion = '4.4'
     distributionUrl = distributionUrl.replace("bin", "all")
+}
+subprojects {
+    afterEvaluate {project ->
+        if (project.hasProperty("android")) {
+            android {
+                compileSdkVersion 27 // <-- match this to your project's compileSdkVersion
+                buildToolsVersion '27.0.3' // <-- match this to your project's buildToolsVersion
+            }
+        }
+    }
 }
