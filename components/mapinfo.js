@@ -63,8 +63,7 @@ export default class App extends Component {
       } else {
         data = data + '否\n';
       }
-    } catch (err) {
-    }
+    } catch (err) {}
   }
 
   componentDidMount() {
