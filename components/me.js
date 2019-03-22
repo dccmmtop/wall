@@ -201,7 +201,6 @@ export default class Me extends Component {
                   onPress={() => {
                     this.setState({updatePasswordModal: false});
                   }}>
-                  {' '}
                   <Text style={{color: '#50adaa'}}>取消</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
