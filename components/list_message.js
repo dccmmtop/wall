@@ -17,7 +17,7 @@ import Session from '../lib/Session';
 import Api from '../lib/Api';
 import Toast from 'react-native-whc-toast';
 import ModalDropdown from 'react-native-modal-dropdown';
-import Spinner from 'react-native-spinkit';
+import {Bars} from 'react-native-loader';
 
 export default class ListMessage extends Component {
   constructor(props) {
@@ -164,6 +164,16 @@ export default class ListMessage extends Component {
       </View>
     );
   };
+
+  loading = () => {
+    if (this.state.loading) {
+      return (
+        <View style={{flex: 1, alignSelf: 'center', justifyContent: 'center'}}>
+          <Bars size={20} color="#50adaa" />
+        </View>
+      );
+    }
+  };
   render() {
     const messages =
       this.state.messages.length > 0 ? this.listItem() : this.renderEmpty();
@@ -183,13 +193,7 @@ export default class ListMessage extends Component {
           </TouchableOpacity>
           <Text style={[styles.text, styles.title]}>所有留言</Text>
         </View>
-        <Spinner
-          style={[styles.border, styles.spinner]}
-          isVisible={this.state.loading}
-          size={60}
-          type={'Wave'}
-          color={'#50adaa'}
-        />
+        {this.loading()}
         {messages}
       </View>
     );
