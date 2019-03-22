@@ -3,7 +3,6 @@ package com.wall;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.react.rnspinkit.RNSpinkitPackage;
 import com.imagepicker.ImagePickerPackage;
 import cn.qiuxiang.react.geolocation.AMapGeolocationPackage;
 import cn.qiuxiang.react.amap3d.AMap3DPackage;
@@ -27,7 +26,6 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new RNSpinkitPackage(),
             new ImagePickerPackage(),
             new AMapGeolocationPackage(),
             new AMap3DPackage()
