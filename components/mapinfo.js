@@ -87,7 +87,6 @@ export default class App extends Component {
       } else {
         this._position = location;
       }
-      // console.log(this._position)
     }
   }
   _animatedToZGC = (position, duration) => {
@@ -117,7 +116,6 @@ export default class App extends Component {
     };
     Request.get({url: Api.get_messages_by_km, data: query})
       .then(res => {
-        // console.log(res);
         this.setState({messages: res.result});
       })
       .catch(error => {

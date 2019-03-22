@@ -17,7 +17,7 @@ import Toast from 'react-native-whc-toast';
 export default class Login extends Component {
   constructor(props) {
     super(props);
-    this.state = {nickname: 'dccmmtop@foxmail.com', password: '1234567'};
+    this.state = {nickname: '', password: ''};
   }
 
   getuserName = () => {
@@ -37,11 +37,11 @@ export default class Login extends Component {
   validateLogin = () => {
     console.log('enter validate');
     if (this.state.nickname.length == 0) {
-      alert('邮箱或昵称不能为空');
+      Alert.alert('提醒', '邮箱或昵称不能为空');
       return false;
     }
     if (this.state.password.length == 0) {
-      alert('密码不能为空');
+      Alert.alert('提醒', '密码不能为空');
       return false;
     }
     return true;
@@ -59,7 +59,7 @@ export default class Login extends Component {
         .then(res => {
           console.log(res);
           if (res.status != 0) {
-            alert(res.message);
+            Alert.alert("提醒",res.message);
           } else {
             Session.login(res.token, res.nickname, res.email, res.avatar);
             Actions.mapInfo({info: '登录成功'});

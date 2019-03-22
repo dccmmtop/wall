@@ -29,7 +29,7 @@ export default class ShowMessage extends Component {
       likeCounts: 35,
       readCounts: '398',
       commentCounts: '0',
-      nickname: '采蘑菇的小姑娘',
+      nickname: '加载中...',
       published_at: '2019-03-01 10:23',
       liked: false,
       avatar: Api.root + '/uploads/loading.jpg',
@@ -155,7 +155,7 @@ export default class ShowMessage extends Component {
     Request.post({url: Api.deleteMessage, data: query})
       .then(res => {
         if (res.status == 0) Actions.mapInfo({info: '删除成功'});
-        else alert('提醒', res.message);
+        else Alert.alert('提醒', res.message);
       })
       .catch(error => {
         console.log(error);
@@ -410,6 +410,17 @@ export default class ShowMessage extends Component {
       </View>
     );
   };
+  commentsHintText = () => {
+    if (this.currentUser) {
+      if (this.state.isComment) {
+        return '写下你的评论';
+      } else {
+        return '作者已关闭评论';
+      }
+    } else {
+      return '登录后方可评论';
+    }
+  };
   render() {
     let optional = null;
     if (this.currentUser && this.currentUser.nickname == this.state.nickname) {
@@ -438,6 +449,7 @@ export default class ShowMessage extends Component {
         </View>
       );
     }
+
     return (
       <View style={styles.container}>
         <Toast ref="toast" />
@@ -532,16 +544,16 @@ export default class ShowMessage extends Component {
 
           <View
             style={[styles.commentGroup]}
-            pointerEvents={this.state.isComment ? 'auto' : 'none'}>
+            pointerEvents={
+              this.state.isComment && this.currentUser != null ? 'auto' : 'none'
+            }>
             <TextInput
               ref={input => {
                 this.textInput = input;
               }}
               value={this.state.text}
               style={[styles.adviceContent, styles.text]}
-              placeholder={
-                this.state.isComment ? '写下你的评论' : '作者已关闭评论'
-              }
+              placeholder={this.commentsHintText()}
               multiline={true}
               numberOfLines={5}
               maxLength={50}

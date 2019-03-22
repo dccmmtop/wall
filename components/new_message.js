@@ -29,13 +29,9 @@ export default class NewMessage extends Component {
   };
 
   componentDidMount = () => {
-    console.log("==============");
-    console.log( JSON.stringify(this.props.position));
   };
   newMessage = () => {
     Session.getUser().then( user => {
-      console.log("======token");
-      console.log(user);
       query = {
         latitude: this.props.position.latitude,
         longitude: this.props.position.longitude,
@@ -48,13 +44,12 @@ export default class NewMessage extends Component {
       };
       Request.post({url: Api.newMessagUrl, data: query}).then(res => {
 
-        console.log(res.message);
         if(res.status == 200){
           Actions.login({info: '请先登录'});
         }else if(res.status == 0){
           Actions.mapInfo({info: '留言成功'});
         }else{
-          alert(res.message.replace(/[a-zA-Z]/g,""));
+          Alert.alert("提醒",res.message.replace(/[a-zA-Z]/g,""));
         }
       }).catch(error => {
         console.log(error);
