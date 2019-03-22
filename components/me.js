@@ -291,7 +291,7 @@ export default class Me extends Component {
                   {this.state.user.nickname}
                 </Text>
                 <TouchableOpacity
-                  activeOpacity={0.7} 
+                  activeOpacity={0.7}
                   onPress={() => {
                     this.setState({
                       isVisible: !this.state.isVisible,
@@ -317,17 +317,25 @@ export default class Me extends Component {
         </View>
 
         <View style={styles.itemsGroup}>
-          <View style={styles.items}>
-            <View style={[styles.flex1, {justifyContent: 'center'}]}>
-              <Text style={{fontSize: 17, alignItems: 'center'}}>我的留言</Text>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => {
+              Actions.list_message();
+            }}>
+            <View style={styles.items}>
+              <View style={[styles.flex1, {justifyContent: 'center'}]}>
+                <Text style={{fontSize: 17, alignItems: 'center'}}>
+                  我的留言
+                </Text>
+              </View>
+              <View style={[styles.flex1, {justifyContent: 'center'}]}>
+                <Image
+                  style={{width: 20, height: 20, alignSelf: 'flex-end'}}
+                  source={require('../icons/ico-right-arrow.png')}
+                />
+              </View>
             </View>
-            <View style={[styles.flex1, {justifyContent: 'center'}]}>
-              <Image
-                style={{width: 20, height: 20, alignSelf: 'flex-end'}}
-                source={require('../icons/ico-right-arrow.png')}
-              />
-            </View>
-          </View>
+          </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => {
