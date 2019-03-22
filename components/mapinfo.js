@@ -14,6 +14,7 @@ import Request from '../lib/Request';
 import Api from '../lib/Api';
 import Toast from 'react-native-whc-toast';
 import Session from '../lib/Session';
+import {PermissionsAndroid} from 'react-native';
 
 export default class App extends Component {
   constructor(props) {
@@ -35,7 +36,39 @@ export default class App extends Component {
     //中心点坐标
     this.centerPosition = {};
   }
+  async requestMultiplePermission() {
+    try {
+      const permissions = [
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+      ];
+      //返回得是对象类型
+      const granteds = await PermissionsAndroid.requestMultiple(permissions);
+      var data = '是否同意地址权限: ';
+      if (granteds['android.permission.ACCESS_FINE_LOCATION'] === 'granted') {
+        data = data + '是\n';
+      } else {
+        data = data + '否\n';
+      }
+      data = data + '是否同意相机权限: ';
+      if (granteds['android.permission.CAMERA'] === 'granted') {
+        data = data + '是\n';
+      } else {
+        data = data + '否\n';
+      }
+      data = data + '是否同意存储权限: ';
+      if (granteds['android.permission.WRITE_EXTERNAL_STORAGE'] === 'granted') {
+        data = data + '是\n';
+      } else {
+        data = data + '否\n';
+      }
+    } catch (err) {
+    }
+  }
+
   componentDidMount() {
+    this.requestMultiplePermission();
     Geolocation.init({
       android: '21f2e5a2ce0b635a4cabf4d437e70031',
     });
