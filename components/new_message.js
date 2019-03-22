@@ -17,7 +17,7 @@ export default class NewMessage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentText: "中华人民共和国中央人民政府",
+      currentText: "",
       limitDays: "",
       isComment: true,
     };
