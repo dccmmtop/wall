@@ -56,7 +56,7 @@ export default class EditMessage extends Component {
           Actions.popTo("show_message");
           Actions.refresh({isComment: this.state.isComment,refresh: true});
         } else {
-          alert(res.message.replace(/[a-zA-Z]/g, ''));
+          Alert.alert("提醒",res.message.replace(/[a-zA-Z]/g, ''));
         }
       })
       .catch(error => {

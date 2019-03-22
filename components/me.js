@@ -48,7 +48,6 @@ export default class Me extends Component {
   componentDidMount = () => {
     Session.getUser()
       .then(user => {
-        console.log(user);
         if (user) {
           this.setState({user: user, newNickname: user.nickname});
         }
@@ -63,7 +62,6 @@ export default class Me extends Component {
 
   selectImage = () => {
     ImagePicker.launchImageLibrary(options, response => {
-      console.log('Response = ', response);
       let formData = new FormData();
       let file = {
         uri: response.uri,
@@ -85,7 +83,6 @@ export default class Me extends Component {
             JSON.parse(res._bodyInit).avatar +
             '?time=' +
             Date.parse(new Date());
-          console.log(user);
           this.setState({user: user});
           Session.login(
             this.state.user.token,
@@ -95,7 +92,6 @@ export default class Me extends Component {
           );
         })
         .catch(error => {
-          console.log(error);
         });
     });
   };
@@ -108,8 +104,6 @@ export default class Me extends Component {
     };
     Request.post({url: Api.updatePassword, data: query})
       .then(res => {
-        console.log('=====================');
-        console.log(res);
         if (res.status == 0) {
           this.setState({updatePasswordModal: false});
           setTimeout(() => {
@@ -374,7 +368,6 @@ export default class Me extends Component {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              console.log('909090909');
               this.setState({
                 updatePasswordModal: !this.state.updatePasswordModal,
               });
