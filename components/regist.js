@@ -70,7 +70,6 @@ export default class Login extends Component {
           console.log(res);
           this.count = 120;
           this.start_interval();
-          this.setState({validate_code: res.message});
           this.refs.toast.show(
             '验证码已发送',
             Toast.Duration.short,
