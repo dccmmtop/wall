@@ -567,7 +567,7 @@ export default class ShowMessage extends Component {
             />
             <View style={{flexDirection: 'row-reverse'}}>
               <TouchableOpacity
-                disabled={!this.isComment}
+                disabled={!this.state.isComment}
                 style={[styles.commentBtn]}
                 onPress={() => this.createComment()}>
                 <Text style={styles.commentText}>发表</Text>
