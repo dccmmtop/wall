@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   TouchableOpacity,
+  Alert,
   Image,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
@@ -57,7 +58,7 @@ export default class Login extends Component {
       };
       Request.post({url: Api.login_url, data: query})
         .then(res => {
-          console.log(res);
+          console.log(res.message);
           if (res.status != 0) {
             Alert.alert("提醒",res.message);
           } else {
