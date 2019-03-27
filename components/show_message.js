@@ -263,7 +263,7 @@ export default class ShowMessage extends Component {
             this.setState({
               comments: Object.assign(res.comment, this.state.comments),
               commentText: '',
-              commentCounts: this.commentCounts + 1,
+              commentCounts: this.state.commentCounts + 1,
             });
           } else {
             Alert.alert('提醒', res.message.replace(/[a-zA-Z]/g, ''));
