@@ -112,7 +112,12 @@ export default class ShowMessage extends Component {
 
   componentWillReceiveProps = info => {
     if (info.refresh) {
-      this.setState({isComment: info.isComment});
+      this.setState({isComment: info.isComment, currentText: info.currentText,limitDays: info.limitDays});
+      this.refs.toast.show(
+        "更新成功",
+        Toast.Duration.long,
+        Toast.Position.bottom,
+      );
     }
   };
   getMessage = () => {
