@@ -77,8 +77,9 @@ export default class App extends Component {
       background: true,
       reGeocode: true,
     });
-    Geolocation.addLocationListener(location =>
-      this.updateLocationState(location),
+    Geolocation.addLocationListener(location => {
+     this.updateLocationState(location);
+      }
     );
     Geolocation.start();
     Session.getUser().then(user => {
