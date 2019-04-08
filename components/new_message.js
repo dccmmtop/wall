@@ -39,11 +39,22 @@ export default class NewMessage extends Component {
       key: '00039a4e5f4421d27deb1efccbb962f9',
       radius: '1000',
       extensions: 'all',
+      poitype: 'city',
     };
     Request.get({url: url, data: query})
       .then(res => {
         if (res.status == '1') {
-          this.setState({location: res.regeocode.aois[0].name});
+          let min_distance = 999999999;
+          let min_distance_name = '';
+          let pois = res.regeocode.pois
+          for (let index in pois) {
+            console.log(pois[index].distance - 0.0);
+            if (pois[index].distance - 0.0 < min_distance) {
+              min_distance = pois[index].distance;
+              min_distance_name = pois[index].name;
+            }
+          }
+          this.setState({location: min_distance_name});
         }
       })
       .catch(error => {
@@ -68,17 +79,17 @@ export default class NewMessage extends Component {
           };
           Request.post({url: Api.newMessagUrl, data: query})
             .then(res => {
-              console.log("_+_+_+_+_+",res);
+              console.log('_+_+_+_+_+', res);
               if (res.status == 200) {
                 Actions.login({info: '请先登录'});
               } else if (res.status == 0) {
                 Actions.mapInfo({info: '留言成功'});
               } else {
                 console.log(res);
-                if(res.message){
-                Alert.alert('提醒', res.message.replace(/[a-zA-Z]/g, ''));
-                }else{
-                Alert.alert('提醒', res.error);
+                if (res.message) {
+                  Alert.alert('提醒', res.message.replace(/[a-zA-Z]/g, ''));
+                } else {
+                  Alert.alert('提醒', res.error);
                 }
               }
             })
