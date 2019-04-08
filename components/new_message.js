@@ -68,13 +68,18 @@ export default class NewMessage extends Component {
           };
           Request.post({url: Api.newMessagUrl, data: query})
             .then(res => {
+              console.log("_+_+_+_+_+",res);
               if (res.status == 200) {
                 Actions.login({info: '请先登录'});
               } else if (res.status == 0) {
                 Actions.mapInfo({info: '留言成功'});
               } else {
                 console.log(res);
+                if(res.message){
                 Alert.alert('提醒', res.message.replace(/[a-zA-Z]/g, ''));
+                }else{
+                Alert.alert('提醒', res.error);
+                }
               }
             })
             .catch(error => {
