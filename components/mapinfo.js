@@ -167,9 +167,8 @@ export default class App extends Component {
         key={this.getKey({latitude: item.latitude, longitude: item.longitude})}
         icon={() => (
           <Image
-            source={require('../icons/message.png')}
-            //距离最近的放大显示
-            style={{width: 30, height: 30}}
+            source={{uri: Api.root + item.user_avatar}}
+            style={{width: 30, height: 30, borderRadius: 50,borderWidth: 1, borderColor: "#999999"}}
           />
         )}
         coordinate={{latitude: item.latitude, longitude: item.longitude}}
