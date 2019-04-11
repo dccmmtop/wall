@@ -34,6 +34,16 @@ export default class ListMessage extends Component {
     this.getMessages(1);
   };
 
+  componentWillReceiveProps = info => {
+    let tampMessages = []
+    for(let i in this.state.messages){
+      if(this.state.messages[i].id != info.deleteMessageId){
+        tampMessages.push(this.state.messages[i])
+      }
+    }
+    this.setState({messages: tampMessages})
+  }
+
   getMessages = page => {
     Session.getUser().then(user => {
       this.currentUser = user;
@@ -105,7 +115,7 @@ export default class ListMessage extends Component {
   };
 
   showMessage = messageId => {
-    Actions.show_message({messageId: messageId});
+    Actions.show_message({messageId: messageId,parent: 'list_message'});
   };
 
   listItem = () => {

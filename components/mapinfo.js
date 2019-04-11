@@ -103,6 +103,16 @@ export default class App extends Component {
     Geolocation.stop();
   }
 
+  componentWillReceiveProps = info => {
+    let tampMessages = []
+    for(let i in this.state.messages){
+      if(this.state.messages[i].id != info.deleteMessageId){
+        tampMessages.push(this.state.messages[i])
+      }
+    }
+    this.setState({messages: tampMessages})
+  }
+
   // get_messages
 
   onStatusChangeComplete = ({nativeEvent}) => {
@@ -174,7 +184,7 @@ export default class App extends Component {
         coordinate={{latitude: item.latitude, longitude: item.longitude}}
         infoWindowDisabled
         onPress={() => {
-          Actions.show_message({messageId: item.id});
+          Actions.show_message({messageId: item.id,parent: "mapInfo"});
         }}
       />
     ));
