@@ -4,7 +4,10 @@ import {
   StyleSheet,
   Text,
   View,
+  Alert,
   TouchableOpacity,
+  TextInput,
+  ScrollView,
   Image,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
@@ -15,12 +18,19 @@ import Api from '../lib/Api';
 import Toast from 'react-native-whc-toast';
 import Session from '../lib/Session';
 import {PermissionsAndroid} from 'react-native';
+import Modal from 'react-native-modal';
+
+let Dimensions = require('Dimensions');
+let SCREEN_WIDTH = Dimensions.get('window').width; //宽
+let SCREEN_HEIGHT = Dimensions.get('window').height; //高
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       messages: [],
+      repeat_message_visible: false,
+      repeat_messages: [],
       location: {
         longitude: 0,
         latitude: 0,
@@ -78,9 +88,8 @@ export default class App extends Component {
       reGeocode: true,
     });
     Geolocation.addLocationListener(location => {
-     this.updateLocationState(location);
-      }
-    );
+      this.updateLocationState(location);
+    });
     Geolocation.start();
     Session.getUser().then(user => {
       if (user) {
@@ -104,14 +113,14 @@ export default class App extends Component {
   }
 
   componentWillReceiveProps = info => {
-    let tampMessages = []
-    for(let i in this.state.messages){
-      if(this.state.messages[i].id != info.deleteMessageId){
-        tampMessages.push(this.state.messages[i])
+    let tampMessages = [];
+    for (let i in this.state.messages) {
+      if (this.state.messages[i].id != info.deleteMessageId) {
+        tampMessages.push(this.state.messages[i]);
       }
     }
-    this.setState({messages: tampMessages})
-  }
+    this.setState({messages: tampMessages});
+  };
 
   // get_messages
 
@@ -156,6 +165,7 @@ export default class App extends Component {
     query = {
       latitude: current_position.latitude,
       longitude: current_position.longitude,
+      distance: 1000,
     };
     Request.get({url: Api.get_messages_by_km, data: query})
       .then(res => {
@@ -164,6 +174,175 @@ export default class App extends Component {
       .catch(error => {
         console.log(error);
       });
+  };
+
+  get_repeat_messages = message => {
+    query = {
+      latitude: message.latitude,
+      longitude: message.longitude,
+      distance: 2,
+    };
+    Request.get({url: Api.get_messages_by_km, data: query})
+      .then(res => {
+        if (res.status == 0) {
+          if (res.sum > 1) {
+            // Alert.alert('提醒', '该位置有' + res.sum + '条留言');
+            //
+            this.setState({
+              repeat_message_visible: true,
+              repeat_messages: res.result,
+            });
+          } else {
+            Actions.show_message({messageId: message.id, parent: 'mapInfo'});
+          }
+        } else {
+          Alert.alert('提醒', '网络错误，稍后重试');
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  alert_repeat_message = () => {
+    let repeat_message = [];
+    for (let i in this.state.repeat_messages) {
+      repeat_message.push(
+        <TouchableOpacity
+          key={this.state.repeat_messages[i].id}
+          activeOpacity={0.7}
+          onPress={() => {
+            this.setState({repeat_message_visible: false});
+            Actions.show_message({
+              messageId: this.state.repeat_messages[i].id,
+              parent: 'mapInfo',
+            });
+          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              borderBottomWidth: 1,
+              borderColor: '#ccc',
+            }}>
+            <Image
+              source={{
+                uri: Api.root + this.state.repeat_messages[i].user_avatar,
+              }}
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: 50,
+                marginLeft: 5,
+                marginRight: 5,
+                marginTop: 5,
+                marginBottom: 5,
+              }}
+            />
+            <View>
+              <Text>{this.state.repeat_messages[i].content}</Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: '#969696',
+                  }}>
+                  {this.state.repeat_messages[i].user_nickname + ' '}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: '#969696',
+                  }}>
+                  {this.state.repeat_messages[i].created_at}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </TouchableOpacity>,
+      );
+    }
+    return (
+      <View>
+        <Modal
+          isVisible={this.state.repeat_message_visible}
+          backdropColor={'black'}
+          backdropOpacity={0.6}
+          onBackdropPress={() => this.setState({repeat_message_visible: false})}
+          animationOut="zoomOutUp"
+          animationInTiming={200}
+          animationOutTiming={10}
+          backdropTransitionInTiming={100}
+          backdropTransitionOutTiming={100}
+          deviceHeight={SCREEN_HEIGHT * 1.1}
+          style={{
+            alignSelf: 'center',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingTop: SCREEN_HEIGHT * 0.2,
+          }}>
+          <View
+            style={{
+              // width: SCREEN_WIDTH * 0.8,
+              height: 250,
+              // backgroundColor: 'white',
+              // paddingLeft: 15,
+              // paddingRight: 5,
+              // paddingBottom: 10,
+              // paddingTop: 10,
+              // alignSelf: 'center',
+              // borderRadius: 8,
+              backgroundColor: 'white',
+              alignSelf: 'center',
+              paddingLeft: 15,
+              paddingRight: 5,
+              paddingBottom: 10,
+              paddingTop: 10,
+              borderRadius: 4,
+              borderColor: 'rgba(0, 0, 0, 0.1)',
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+              }}>
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 15,
+                  }}>
+                  该位置下有{this.state.repeat_messages.length}条留言
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={{
+                  alignItems: 'flex-end',
+                }}
+                onPress={() => {
+                  this.setState({repeat_message_visible: false});
+                }}>
+                <Image
+                  source={require('../icons/close.png')}
+                  style={{width: 20, height: 20}}
+                />
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                // flexDirection: 'row',
+                flex: 8,
+              }}>
+              <ScrollView>{repeat_message}</ScrollView>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    );
   };
 
   //按经纬度来设置key，防止key重复，减少刷新页面次数
@@ -178,13 +357,24 @@ export default class App extends Component {
         icon={() => (
           <Image
             source={{uri: Api.root + item.user_avatar}}
-            style={{width: 30, height: 30, borderRadius: 50,borderWidth: 1, borderColor: "#999999"}}
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 50,
+              borderWidth: 1,
+              borderColor: '#999999',
+            }}
           />
         )}
         coordinate={{latitude: item.latitude, longitude: item.longitude}}
         infoWindowDisabled
         onPress={() => {
-          Actions.show_message({messageId: item.id,parent: "mapInfo"});
+          // Actions.show_message({messageId: item.id, parent: 'mapInfo'});
+          this.get_repeat_messages({
+            latitude: item.latitude,
+            longitude: item.longitude,
+            id: item.id,
+          });
         }}
       />
     ));
@@ -247,6 +437,7 @@ export default class App extends Component {
               />
             </TouchableOpacity>
           </View>
+          {this.alert_repeat_message()}
         </View>
       </View>
     );
