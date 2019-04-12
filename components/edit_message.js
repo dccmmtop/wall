@@ -116,11 +116,11 @@ export default class EditMessage extends Component {
               style={[styles.limitInput, styles.flex1]}
               placeholderTextColor="gray"
               underlineColorAndroid="transparent"
-              value={this.state.limitDays.toString() == '0' ? '' : this.state.limitDays.toString()}
+              value={this.state.limitDays.toString() == '1000000' ? '' : this.state.limitDays.toString()}
               onChangeText={text => {
                 this.setState({limitDays: text});
               }}
-              placeholder="默认永不过期"
+              placeholder="永不过期"
               keyboardType="numeric"
             />
           </View>

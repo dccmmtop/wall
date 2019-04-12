@@ -6,6 +6,8 @@ import {
   View,
   Alert,
   TouchableOpacity,
+  TextInput,
+  ScrollView,
   Image,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
@@ -175,7 +177,6 @@ export default class App extends Component {
   };
 
   get_repeat_messages = message => {
-    console.log('_+_++_+_+_+');
     query = {
       latitude: message.latitude,
       longitude: message.longitude,
@@ -187,7 +188,10 @@ export default class App extends Component {
           if (res.sum > 1) {
             // Alert.alert('提醒', '该位置有' + res.sum + '条留言');
             //
-            this.setState({repeat_message_visible:true, repeat_messages: res.result})
+            this.setState({
+              repeat_message_visible: true,
+              repeat_messages: res.result,
+            });
           } else {
             Actions.show_message({messageId: message.id, parent: 'mapInfo'});
           }
@@ -203,17 +207,61 @@ export default class App extends Component {
   alert_repeat_message = () => {
     let repeat_message = [];
     for (let i in this.state.repeat_messages) {
-      console.log(')))))))))))))))))))))))))');
-      console.log(this.state.repeat_messages[i]);
       repeat_message.push(
-        <Image
-          source={{uri: Api.root + this.state.repeat_messages[i].user_avatar}}
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 50,
-          }}
-        />,
+        <TouchableOpacity
+          key={this.state.repeat_messages[i].id}
+          activeOpacity={0.7}
+          onPress={() => {
+            this.setState({repeat_message_visible: false});
+            Actions.show_message({
+              messageId: this.state.repeat_messages[i].id,
+              parent: 'mapInfo',
+            });
+          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              borderBottomWidth: 1,
+              borderColor: '#ccc',
+            }}>
+            <Image
+              source={{
+                uri: Api.root + this.state.repeat_messages[i].user_avatar,
+              }}
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: 50,
+                marginLeft: 5,
+                marginRight: 5,
+                marginTop: 5,
+                marginBottom: 5,
+              }}
+            />
+            <View>
+              <Text>{this.state.repeat_messages[i].content}</Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: '#969696',
+                  }}>
+                  {this.state.repeat_messages[i].user_nickname + ' '}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: '#969696',
+                  }}>
+                  {this.state.repeat_messages[i].created_at}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </TouchableOpacity>,
       );
     }
     return (
@@ -222,28 +270,75 @@ export default class App extends Component {
           isVisible={this.state.repeat_message_visible}
           backdropColor={'black'}
           backdropOpacity={0.6}
-          deviceHeight={SCREEN_HEIGHT * 1.2}
+          onBackdropPress={() => this.setState({repeat_message_visible: false})}
+          animationOut="zoomOutUp"
+          animationInTiming={200}
+          animationOutTiming={10}
+          backdropTransitionInTiming={100}
+          backdropTransitionOutTiming={100}
+          deviceHeight={SCREEN_HEIGHT * 1.1}
           style={{
             alignSelf: 'center',
             alignItems: 'center',
             justifyContent: 'center',
             paddingTop: SCREEN_HEIGHT * 0.2,
           }}>
-          <View style={{flex: 1}}>
+          <View
+            style={{
+              // width: SCREEN_WIDTH * 0.8,
+              height: 250,
+              // backgroundColor: 'white',
+              // paddingLeft: 15,
+              // paddingRight: 5,
+              // paddingBottom: 10,
+              // paddingTop: 10,
+              // alignSelf: 'center',
+              // borderRadius: 8,
+              backgroundColor: 'white',
+              alignSelf: 'center',
+              paddingLeft: 15,
+              paddingRight: 5,
+              paddingBottom: 10,
+              paddingTop: 10,
+              borderRadius: 4,
+              borderColor: 'rgba(0, 0, 0, 0.1)',
+            }}>
             <View
               style={{
-                width: SCREEN_WIDTH * 0.8,
-                height: 250,
-                backgroundColor: 'white',
-                paddingLeft: 15,
-                paddingRight: 15,
-                paddingBottom: 10,
-                paddingTop: 25,
-                alignSelf: 'center',
-                borderRadius: 8,
-              }}
-            />
-            {repeat_message}
+                flexDirection: 'row',
+              }}>
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 15,
+                  }}>
+                  该位置下有{this.state.repeat_messages.length}条留言
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={{
+                  alignItems: 'flex-end',
+                }}
+                onPress={() => {
+                  this.setState({repeat_message_visible: false});
+                }}>
+                <Image
+                  source={require('../icons/close.png')}
+                  style={{width: 20, height: 20}}
+                />
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                // flexDirection: 'row',
+                flex: 8,
+              }}>
+              <ScrollView>{repeat_message}</ScrollView>
+            </View>
           </View>
         </Modal>
       </View>
