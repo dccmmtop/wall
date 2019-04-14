@@ -11,7 +11,7 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
-import {Actions} from 'react-native-router-flux';
+import {Actions, Scene, Router, Stack} from 'react-native-router-flux';
 import Request from '../lib/Request';
 import Session from '../lib/Session';
 import Api from '../lib/Api';

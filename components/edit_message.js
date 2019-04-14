@@ -19,7 +19,7 @@ export default class EditMessage extends Component {
     super(props);
     this.state = {
       currentText: '',
-      limitDays: 1000,
+      limitDays: 1000000,
       isComment: true,
       currentUser: null,
     };

@@ -19,7 +19,7 @@ export default class NewMessage extends Component {
     super(props);
     this.state = {
       currentText: '',
-      limitDays: '',
+      limitDays: 1000000,
       isComment: true,
       location: null,
     };
@@ -79,7 +79,6 @@ export default class NewMessage extends Component {
           };
           Request.post({url: Api.newMessagUrl, data: query})
             .then(res => {
-              console.log('_+_+_+_+_+', res);
               if (res.status == 200) {
                 Actions.login({info: '请先登录'});
               } else if (res.status == 0) {
@@ -159,7 +158,7 @@ export default class NewMessage extends Component {
                 this.setState({limitDays: text.toString()});
               }}
               keyboardType="numeric"
-              value={this.state.limitDays}
+              value={this.state.limitDays.toString() == '1000000' ? '' : this.state.limitDays.toString()}
               placeholder="默认永不过期"
             />
           </View>

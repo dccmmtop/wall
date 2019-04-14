@@ -15,7 +15,13 @@ export default class App extends Component {
     if (Actions.currentScene === 'mapInfo') {
       BackHandler.exitApp();
       return false;
-    } else {
+    } 
+    else if(Actions.currentScene === 'show_message'){
+      Actions.pop();
+      Actions.refresh({})
+      return true;
+    }
+    else {
       Actions.pop();
       return true;
     }
@@ -24,7 +30,7 @@ export default class App extends Component {
     return (
       <Router backAndroidHandler={this.onBackPress}>
         <Stack key="root" hideNavBar>
-          <Scene key="mapInfo" component={MapInfo}  initial />
+          <Scene key="mapInfo" component={MapInfo} initial />
           <Scene key="login" component={Login} />
           <Scene key="regist" component={Regist} />
           <Scene key="new_message" component={NewMessage} />
