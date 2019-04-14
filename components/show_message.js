@@ -11,7 +11,7 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
-import {Actions} from 'react-native-router-flux';
+import {Actions, Scene, Router, Stack} from 'react-native-router-flux';
 import Request from '../lib/Request';
 import Session from '../lib/Session';
 import Api from '../lib/Api';
@@ -163,7 +163,7 @@ export default class ShowMessage extends Component {
     };
     Request.post({url: Api.deleteMessage, data: query})
       .then(res => {
-        if (res.status == 0) Actions.mapInfo({info: '删除成功'});
+        if (res.status == 0) Actions.replace(this.props.parent,{deleteMessageId: this.props.messageId});
         else Alert.alert('提醒', res.message);
       })
       .catch(error => {
