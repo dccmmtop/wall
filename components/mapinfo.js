@@ -450,7 +450,7 @@ export default class App extends Component {
             borderColor: '#50adaa',
             marginLeft: 4,
           }}
-          placeholder="时间(例：3 天以内)"
+          placeholder="时间(例：3)"
           placeholderTextColor="gray"
           underlineColorAndroid="transparent"
           onChangeText={text => {
