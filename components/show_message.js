@@ -370,7 +370,7 @@ export default class ShowMessage extends Component {
             <View style={[styles.commentGroupBody]}>
               <View style={[styles.commentGroupBodyLeft, styles.flex5]}>
                 <Image
-                  style={{height: 50, width: 50, borderRadius: 50}}
+                  style={{height: 40, width: 40, borderRadius: 50}}
                   source={{
                     uri: Api.root + item.user.avatar,
                   }}

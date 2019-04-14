@@ -9,6 +9,8 @@ import EditMessage from './components/edit_message';
 import Me from './components/me';
 import {BackHandler} from 'react-native';
 import ListMessage from './components/list_message';
+import ListNotices from './components/list_notices';
+
 
 export default class App extends Component {
   onBackPress() {
@@ -38,6 +40,7 @@ export default class App extends Component {
           <Scene key="show_message" component={ShowMessage} />
           <Scene key="me" component={Me} />
           <Scene key="list_message" component={ListMessage} />
+          <Scene key="list_notices" component={ListNotices} />
         </Stack>
       </Router>
     );

@@ -50,6 +50,7 @@ export default class Me extends Component {
       .then(user => {
         if (user) {
           this.setState({user: user, newNickname: user.nickname});
+          this.has_not_read();
         }
       })
       .catch(error => {});
@@ -91,8 +92,7 @@ export default class Me extends Component {
             this.state.user.avatar,
           );
         })
-        .catch(error => {
-        });
+        .catch(error => {});
     });
   };
   updatePassword = () => {
@@ -246,6 +246,40 @@ export default class Me extends Component {
         Alert.alert('提醒', error);
       });
   };
+
+  has_not_read = () => {
+    let query = {
+      token: this.state.user.token,
+    };
+    Request.get({url: Api.hasNotRead, data: query})
+      .then(res => {
+        console.log('&&&&&&&&&&&&&&&&&&&&');
+        console.log(res);
+        if (res.status == 0) {
+          if (res.has_not_read) {
+            this.setState({
+              red_dot_visible: true,
+            });
+          }
+        }
+      })
+      .catch(error => {
+        Alert.alert('提醒', error);
+      });
+  };
+  render_not_read = () => {
+    if (this.state.red_dot_visible) {
+      return (
+        <Image
+          source={require('../icons/circle.png')}
+          style={{
+            width: 10,
+            height: 10,
+          }}
+        />
+      );
+    }
+  };
   render() {
     return (
       <View style={styles.container}>
@@ -377,6 +411,27 @@ export default class Me extends Component {
                 <Text style={{fontSize: 17, alignItems: 'center'}}>
                   修改密码
                 </Text>
+              </View>
+              <View style={[styles.flex1, {justifyContent: 'center'}]}>
+                <Image
+                  style={{width: 20, height: 20, alignSelf: 'flex-end'}}
+                  source={require('../icons/ico-right-arrow.png')}
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              Actions.list_notices();
+            }}>
+            <View style={styles.items}>
+              <View
+                style={[
+                  styles.flex1,
+                  {flexDirection: 'row', alignItems: 'center'},
+                ]}>
+                <Text style={{fontSize: 17}}>系统消息</Text>
+                {this.render_not_read()}
               </View>
               <View style={[styles.flex1, {justifyContent: 'center'}]}>
                 <Image
