@@ -493,7 +493,8 @@ export default class App extends Component {
   render() {
     const markers = this.state.messages.map(item => (
       <MapView.Marker
-        key={this.getKey({latitude: item.latitude, longitude: item.longitude})}
+        // key={this.getKey({latitude: item.latitude, longitude: item.longitude})}
+        key={item.id}
         icon={() => (
           <Image
             source={{uri: Api.root + item.user_avatar}}
