@@ -11,202 +11,59 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
-import {Actions} from 'react-native-router-flux';
+import {Actions, Scene, Router, Stack} from 'react-native-router-flux';
 import Request from '../lib/Request';
 import Session from '../lib/Session';
 import Api from '../lib/Api';
 import Toast from 'react-native-whc-toast';
 import ModalDropdown from 'react-native-modal-dropdown';
-import {Bars} from 'react-native-loader';
 
-export default class ListNotice extends Component {
+export default class ShowNotice extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      notices: [],
-      loading: true,
+      content: '',
+      created_at: '',
+      currentText: '',
+      limitDays: '',
+      isComment: true,
+      currentUser: null,
+      location: '',
+      messageId: '',
     };
-    this.currentUser = null;
   }
+
   componentDidMount = () => {
-    this.getNotices();
+    this.get_notice();
   };
 
-  componentWillReceiveProps = info => {
-    this.getNotices();
-  };
-
-  getNotices = () => {
+  get_notice = () => {
     Session.getUser().then(user => {
-      this.currentUser = user;
       query = {
         token: user.token,
+        id: this.props.id,
       };
-      Request.get({url: Api.getNotices, data: query})
+      Request.get({url: Api.getNotice, data: query})
         .then(res => {
           console.log(res);
           this.setState({
-            loading: false,
-            notices: res.data,
+            messageId: res.message_id,
+            content: res.content,
+            created_at: res.created_at,
+            currentUser: user,
+            currentText: res.current_text,
+            limitDays: res.limit_days,
+            isComment: res.is_comment,
+            location: res.location,
           });
         })
-        .catch(error => {
-          this.setState({
-            loading: false,
-          });
-        });
+        .catch(error => {});
     });
   };
 
-  loadMoreData = () => {
-    this.page += 1;
-    this.getNotices(this.page);
-  };
-
-  listItem = () => {
-    return (
-      <ScrollView>
-        <View style={[styles.recordList]}>
-          <FlatList
-            data={this.state.notices}
-            keyExtractor={(item, index) => {
-              return item.created_at;
-            }}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => {
-                  Actions.show_notice({id: item.id});
-                }}>
-                <View
-                  style={{
-                    borderBottomWidth: 1,
-                    borderColor: '#dcdcdc',
-                    padding: 10,
-                    backgroundColor: 'white',
-                  }}>
-                  <View style={{flexDirection: 'row', marginBottom: 10}}>
-                    <Text style={{fontSize: 16}}>{item.content}</Text>
-                    {item.is_read ? (
-                      <Text />
-                    ) : (
-                      <Image
-                        source={require('../icons/circle.png')}
-                        style={{
-                          width: 10,
-                          height: 10,
-                          right: 0,
-                        }}
-                      />
-                    )}
-                  </View>
-                  <View style={{flexDirection: 'row'}}>
-                    <View
-                      style={{
-                        justifyContent: 'flex-start',
-                        flexDirection: 'row',
-                        flex: 1,
-                      }}>
-                      <Text style={styles.grayText}>{item.created_at}</Text>
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-      </ScrollView>
-    );
-  };
-
-  loading = () => {
-    if (this.state.loading) {
+  go_to_edit_message = () => {
+    if (this.state.messageId) {
       return (
-        <View style={{flex: 1, alignSelf: 'center', justifyContent: 'center'}}>
-          <Bars size={20} color="#50adaa" />
-        </View>
-      );
-    }
-  };
-
-  renderEmpty = () => {
-    if (this.state.loading == false) {
-      return (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignSelf: 'center',
-            alignItems: 'center',
-            marginTop: 50,
-          }}>
-          <Image
-            source={require('../icons/empty.png')}
-            style={{width: 190, height: 150}}
-          />
-          <Text style={styles.grayText}>没有消息</Text>
-        </View>
-      );
-    }
-  };
-
-  clearNotices = () => {
-    query = {
-      token: this.currentUser.token,
-    };
-    Request.get({url: Api.clearNotices, data: query})
-      .then(res => {
-        console.log(res);
-        let tmp_notices = [];
-        if (res.status != 0) {
-          Alert.alert('提醒', res.message);
-        } else {
-          let delete_flag = false;
-          for (let i in this.state.notices) {
-            if (this.state.notices[i].is_read) {
-              delete_flag = true;
-            } else {
-              tmp_notices.push(this.state.notices[i]);
-            }
-          }
-          this.setState({notices: tmp_notices});
-          let info = '删除已读消息';
-          if (delete_flag == false) {
-            info = '没有未读消息';
-          }
-          this.refs.toast.show(
-            info,
-            Toast.Duration.short,
-            Toast.Position.bottom,
-          );
-        }
-      })
-      .catch(error => {
-        Alert.alert('提醒', error);
-      });
-  };
-  render() {
-    const notices =
-      this.state.notices.length > 0 ? this.listItem() : this.renderEmpty();
-    return (
-      <View style={styles.container}>
-        <Toast ref="toast" />
-        <View style={[styles.back]}>
-          <TouchableOpacity
-            onPress={() => {
-              Actions.pop();
-            }}
-            style={styles.backBtn}>
-            <Image
-              style={styles.backImg}
-              source={require('../icons/back.png')}
-            />
-          </TouchableOpacity>
-          <Text style={[styles.text, styles.title]}>系统消息</Text>
-        </View>
-        {this.loading()}
-
-        {notices}
         <View
           style={{
             paddingLeft: 30,
@@ -218,10 +75,19 @@ export default class ListNotice extends Component {
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => {
-              this.clearNotices();
+              Actions.edit_message({
+                message: {
+                  content: this.state.currentText,
+                  limitDays: this.state.limitDays,
+                  isComment: this.state.isComment,
+                  currentUser: this.state.currentUser,
+                  location: this.state.location,
+                  id: this.state.messageId,
+                },
+              });
             }}
             style={{
-              backgroundColor: '#d9534f',
+              backgroundColor: '#42b0ae',
               height: 50,
               justifyContent: 'center',
             }}>
@@ -232,9 +98,66 @@ export default class ListNotice extends Component {
                 alignSelf: 'center',
                 textAlignVertical: 'center',
               }}>
-              清空已读消息
+              前去修改
             </Text>
           </TouchableOpacity>
+        </View>
+      );
+    }
+  };
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <Toast ref="toast" />
+        {/* 导航，返回按钮*/}
+        <View style={[styles.back]}>
+          <TouchableOpacity
+            onPress={() => {
+              Actions.pop();
+            }}
+            style={styles.backBtn}>
+            <Image
+              style={styles.backImg}
+              source={require('../icons/back.png')}
+            />
+          </TouchableOpacity>
+          <Text style={[styles.text, styles.title]}>消息</Text>
+        </View>
+        <View
+          style={{
+            backgroundColor: 'white',
+            marginTop: 5,
+            padding: 10,
+            flex: 6,
+          }}>
+          <Text
+            style={{
+              fontSize: 18,
+            }}>
+            内容：
+          </Text>
+          <Text
+            style={{
+              marginTop: 10,
+              paddingLeft: 10,
+            }}>
+            {this.state.content}
+          </Text>
+          <Text
+            style={{
+              fontSize: 12,
+              color: '#969696',
+              paddingLeft: 10,
+            }}>
+            {this.state.created_at}
+          </Text>
+        </View>
+        <View
+          style={{
+            flex: 1,
+          }}>
+          {this.go_to_edit_message()}
         </View>
       </View>
     );
@@ -242,11 +165,6 @@ export default class ListNotice extends Component {
 }
 
 const styles = StyleSheet.create({
-  spinner: {
-    flex: 1,
-    justifyContent: 'center',
-    alignSelf: 'center',
-  },
   container: {
     flex: 1,
     backgroundColor: '#F2F2F2',
@@ -477,8 +395,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  recordList: {
-    marginTop: 10,
   },
 });

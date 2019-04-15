@@ -10,17 +10,21 @@ import Me from './components/me';
 import {BackHandler} from 'react-native';
 import ListMessage from './components/list_message';
 import ListNotices from './components/list_notices';
+import ShowNotice from './components/show_notice';
 
 
 export default class App extends Component {
   onBackPress() {
-    if (Actions.currentScene === 'mapInfo') {
+    cs = Actions.currentScene
+    if (cs === 'mapInfo') {
       BackHandler.exitApp();
       return false;
     } 
-    else if(Actions.currentScene === 'show_message'){
+    else if(cs === 'show_message' || cs === 'list_notices' || cs === 'show_notice'){
       Actions.pop();
+      setTimeout(() => {
       Actions.refresh({})
+      },500)
       return true;
     }
     else {
@@ -41,6 +45,7 @@ export default class App extends Component {
           <Scene key="me" component={Me} />
           <Scene key="list_message" component={ListMessage} />
           <Scene key="list_notices" component={ListNotices} />
+          <Scene key="show_notice" component={ShowNotice} />
         </Stack>
       </Router>
     );

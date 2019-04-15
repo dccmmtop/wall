@@ -53,7 +53,7 @@ export default class EditMessage extends Component {
         if (res.status == 200) {
           Actions.login({info: '请先登录'});
         } else if (res.status == 0) {
-          Actions.popTo("show_message");
+          Actions.pop();
           Actions.refresh({isComment: this.state.isComment,currentText: this.state.currentText,limitDays: this.state.limitDays, refresh: true});
         } else {
           Alert.alert("提醒",res.message.replace(/[a-zA-Z]/g, ''));

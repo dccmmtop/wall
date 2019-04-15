@@ -39,9 +39,9 @@ export default class Me extends Component {
       user: {},
       isVisible: false,
       newNickname: '',
-      oldPassword: 'qwertyuiop',
-      newPassword: 'qwertyuiop',
-      newPasswordComfirm: 'qwertyuiop',
+      oldPassword: '',
+      newPassword: '',
+      newPasswordComfirm: '',
       updatePasswordModal: false,
     };
   }
@@ -54,6 +54,10 @@ export default class Me extends Component {
         }
       })
       .catch(error => {});
+  };
+
+  componentWillReceiveProps = info => {
+    this.has_not_read();
   };
 
   exitApp = () => {
@@ -253,14 +257,11 @@ export default class Me extends Component {
     };
     Request.get({url: Api.hasNotRead, data: query})
       .then(res => {
-        console.log('&&&&&&&&&&&&&&&&&&&&');
-        console.log(res);
         if (res.status == 0) {
-          if (res.has_not_read) {
-            this.setState({
-              red_dot_visible: true,
-            });
-          }
+          console.log(res);
+          this.setState({
+            red_dot_visible: res.has_not_read,
+          });
         }
       })
       .catch(error => {
