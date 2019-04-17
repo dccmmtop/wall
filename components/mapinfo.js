@@ -255,7 +255,7 @@ export default class App extends Component {
   auto_alert_height = sum_length => {
     let sum_height = 350;
     sum_height = (sum_length + 1) * 43.75;
-    return Math.min(sum_height,393.75);
+    return Math.min(sum_height, 393.75);
   };
   render_alert_message = () => {
     let title = '';
@@ -490,6 +490,7 @@ export default class App extends Component {
     return coordinate.latitude.toString() + coordinate.longitude.toString();
   };
 
+
   render() {
     const markers = this.state.messages.map(item => (
       <MapView.Marker
@@ -526,12 +527,11 @@ export default class App extends Component {
         <MapView
           style={StyleSheet.absoluteFill}
           ref={ref => (this.mapView = ref)}
-          locationEnabled
           showsScale
           showsZoomControls={false}
           zoomLevel={20}
           onStatusChangeComplete={this.onStatusChangeComplete}>
-          {markers}
+           {markers}
         </MapView>
         {this.render_search()}
         <View style={styles.centerImgWrap}>
