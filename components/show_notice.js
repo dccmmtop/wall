@@ -156,6 +156,7 @@ export default class ShowNotice extends Component {
         <View
           style={{
             flex: 1,
+            backgroundColor: 'white',
           }}>
           {this.go_to_edit_message()}
         </View>
